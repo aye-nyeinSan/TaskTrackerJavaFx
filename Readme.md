@@ -1,1 +1,3 @@
-This branch is only use for production. 
+
+This branch is used for development.
+
