@@ -7,12 +7,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class drawWaterMarkPane {
     @FXML private Button waterMarkButt;
+
     FXMLLoader loader;
 
     public  void OnDrawWaterMark() {
@@ -38,5 +40,7 @@ public class drawWaterMarkPane {
 
 
         });
+
+
     }
 }
