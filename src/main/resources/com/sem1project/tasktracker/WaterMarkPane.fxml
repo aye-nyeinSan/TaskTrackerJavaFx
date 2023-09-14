@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="511.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <AnchorPane layoutX="10.0" layoutY="10.0" minHeight="0.0" minWidth="0.0" prefHeight="511.0" prefWidth="800.0">
@@ -32,7 +31,7 @@
             <Label layoutX="238.0" layoutY="228.0" text="Image  Quality" />
             <Label layoutX="501.0" layoutY="14.0" text="Preview" />
             <ImageView fitHeight="167.0" fitWidth="267.0" layoutX="512.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true" />
-            <GridPane layoutX="559.0" layoutY="300.0" prefHeight="95.0" prefWidth="174.0" style="-fx-background-color: blue; -fx-border-color: black; -fx-grid-lines-visible: true;">
+            <GridPane layoutX="559.0" layoutY="294.0" prefHeight="101.0" prefWidth="150.0" style="-fx-background-color: blue; -fx-border-color: black; -fx-grid-lines-visible: true;">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="58.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="55.0" />
@@ -40,9 +39,20 @@
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints maxHeight="34.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="62.0" minHeight="10.0" prefHeight="27.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="37.0" minHeight="0.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="34.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="34.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
                </rowConstraints>
+               <children>
+                  <Button mnemonicParsing="false" text="Button" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="1" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.rowIndex="2" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.rowIndex="1" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="2" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+               </children>
             </GridPane>
             <Button layoutX="32.0" layoutY="317.0" mnemonicParsing="false" text="Titled" />
             <Button layoutX="697.0" layoutY="451.0" mnemonicParsing="false" text="Apply" />
