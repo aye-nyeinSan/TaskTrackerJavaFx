@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="511.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="511.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sem1project.tasktracker.controller.WaterMarkPaneMainController">
    <children>
       <AnchorPane layoutX="10.0" layoutY="10.0" minHeight="0.0" minWidth="0.0" prefHeight="511.0" prefWidth="800.0">
          <children>
@@ -30,7 +30,7 @@
             <Slider layoutX="238.0" layoutY="264.0" />
             <Label layoutX="238.0" layoutY="228.0" text="Image  Quality" />
             <Label layoutX="501.0" layoutY="14.0" text="Preview" />
-            <ImageView fitHeight="167.0" fitWidth="267.0" layoutX="512.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView  fx:id="ImgPreview"  fitHeight="167.0" fitWidth="267.0" layoutX="512.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true" />
             <GridPane layoutX="559.0" layoutY="294.0" prefHeight="101.0" prefWidth="150.0" style="-fx-background-color: blue; -fx-border-color: black; -fx-grid-lines-visible: true;">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="58.0" />
@@ -55,8 +55,8 @@
                </children>
             </GridPane>
             <Button layoutX="32.0" layoutY="317.0" mnemonicParsing="false" text="Titled" />
-            <Button layoutX="697.0" layoutY="451.0" mnemonicParsing="false" text="Apply" />
-            <Button layoutX="613.0" layoutY="451.0" mnemonicParsing="false" text="Cancel" />
+            <Button fx:id="applywatermark" layoutX="697.0" layoutY="451.0" mnemonicParsing="false" text="Apply" />
+            <Button fx:id="cancelwatermark" layoutX="613.0" layoutY="451.0" mnemonicParsing="false" onAction="#OnCancelWaterMark" text="Cancel" />
             <Label layoutX="260.0" layoutY="92.0" text="Label" />
             <Label layoutX="260.0" layoutY="134.0" text="Label" />
             <Label layoutX="260.0" layoutY="169.0" text="Label" />
