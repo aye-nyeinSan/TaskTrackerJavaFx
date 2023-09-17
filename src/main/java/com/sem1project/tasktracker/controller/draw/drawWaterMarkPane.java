@@ -47,20 +47,29 @@ public class drawWaterMarkPane {
         //Dragging the item
         inputListView.setOnDragOver(dragEvent -> {
             Dragboard db = dragEvent.getDragboard();
+            final String[] acceptedExtensions = {".png", ".jpg", ".zip",".rar"};
+           // boolean isAccepted = false;
+            List<File> files = db.getFiles();
 
-            if (db.hasFiles() ) {
-                dragEvent.acceptTransferModes(TransferMode.COPY);
-            } else {
-                dragEvent.consume();
-            }//  it prevents other event handlers (if any) from being notified of the button click event.
+            for (File file : files) {
+                String fileName = file.getName().toLowerCase();
+                for (String extension : acceptedExtensions) {
+                    if (db.hasFiles() && fileName.endsWith(extension)) {
+                      //  isAccepted = true;
+                        dragEvent.acceptTransferModes(TransferMode.COPY);
 
+                    }else {
+                        dragEvent.consume();
+                    }
+                }
+            }
         });
 
         //checking the target items are acceptable or not
         inputListView.setOnDragDropped(event -> {
             Dragboard dragboard = event.getDragboard();
             boolean success = false;
-            if (dragboard.hasFiles()) {
+            if (dragboard.hasFiles() ) {
                 success = true;
                 int total_files = dragboard.getFiles().size();
                 //  String  filepath;
