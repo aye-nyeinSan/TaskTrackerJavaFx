@@ -17,7 +17,7 @@
       <AnchorPane layoutX="10.0" layoutY="10.0" minHeight="0.0" minWidth="0.0" prefHeight="511.0" prefWidth="800.0">
          <children>
             <Label layoutX="22.0" layoutY="14.0" text="Text" />
-            <TextField layoutX="22.0" layoutY="35.0" />
+            <TextField fx:id="watermarkText" layoutX="22.0" layoutY="35.0" onAction="#OnWaterMarkText" />
             <ColorPicker layoutX="217.0" layoutY="35.0" prefHeight="31.0" prefWidth="100.0" />
             <Label layoutX="22.0" layoutY="92.0" text="Visibility" />
             <Slider layoutX="106.0" layoutY="94.0" />
@@ -30,7 +30,7 @@
             <Slider layoutX="238.0" layoutY="264.0" />
             <Label layoutX="238.0" layoutY="228.0" text="Image  Quality" />
             <Label layoutX="501.0" layoutY="14.0" text="Preview" />
-            <ImageView  fx:id="ImgPreview"  fitHeight="167.0" fitWidth="267.0" layoutX="512.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="ImgPreview" fitHeight="167.0" fitWidth="267.0" layoutX="512.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true" />
             <GridPane layoutX="559.0" layoutY="294.0" prefHeight="101.0" prefWidth="150.0" style="-fx-background-color: blue; -fx-border-color: black; -fx-grid-lines-visible: true;">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="95.0" minWidth="10.0" prefWidth="58.0" />
