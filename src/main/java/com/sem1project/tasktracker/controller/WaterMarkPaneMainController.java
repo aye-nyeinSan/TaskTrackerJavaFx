@@ -2,8 +2,11 @@ package com.sem1project.tasktracker.controller;
 
 import com.sem1project.tasktracker.Launcher;
 import com.sem1project.tasktracker.controller.draw.drawWaterMarkPane;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -23,28 +26,43 @@ public class WaterMarkPaneMainController {
     @FXML private TextField watermarkText;
 
     public void initialize(){
+
+
+
         watermarkText.textProperty().addListener((observable, oldValue, newValue) -> {
             // Update the image preview here
-            Text textNode = new Text(this.watermarkText.getText());
+            Text textNode = new Text(watermarkText.getText());
             textNode.setStroke(Color.BLACK);
-             textNode.setFont(Font.font("Arial", 300));
-
-            // Create a StackPane to overlay the text on the image
+            textNode.setFont(Font.font("Arial", 300));
+            ImageView imageView= new ImageView(ImgPreview.getImage());
             StackPane stackPane = new StackPane();
-            stackPane.getChildren().addAll(
-                    new ImageView(ImgPreview.getImage()),
-                    textNode
-            );
-
             // Create a SnapshotParameters object to render the Text object
             SnapshotParameters params = new SnapshotParameters();
+            //System.out.println(params);
             params.setFill(Color.TRANSPARENT);
+            if (newValue.isEmpty() && this.watermarkText.getText().isEmpty()) {
+                // Clear the textNode when the TextField is empty
+                textNode.setText("");
+                stackPane.getChildren().clear();
+                stackPane.getChildren().addAll(
+                        imageView,
+                        textNode
+                );
 
-            // Render the Text object to an image
-            WritableImage image = stackPane.snapshot(params, null);
-            ImgPreview.setImage(image);
+            } else {
+                textNode.setText(newValue);
+                stackPane.getChildren().clear();
+                stackPane.getChildren().addAll(
+                        imageView,
+                        textNode
+                );
+                ImgPreview.setImage(stackPane.snapshot(params, null));
 
+            }
         });
+
+
+
 
     }
     public void OnImgPreview(List<File> inputListViewItems ){

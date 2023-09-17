@@ -68,17 +68,21 @@ public class drawWaterMarkPane {
         //checking the target items are acceptable or not
         inputListView.setOnDragDropped(event -> {
             Dragboard dragboard = event.getDragboard();
+            final String[] acceptedExtensions = {".png", ".jpg", ".zip",".rar"};
+
+            List<File> files = dragboard.getFiles();
             boolean success = false;
-            if (dragboard.hasFiles() ) {
-                success = true;
-                int total_files = dragboard.getFiles().size();
-                //  String  filepath;
-                for (int i = 0; i < total_files; i++) {
-                    File file = dragboard.getFiles().get(i);
-                    //filepath = dragboard.getFiles().get(i).getAbsolutePath();
-                    inputListView.getItems().add(file);
+                for ( String extension : acceptedExtensions) {
+                     for (int i = 0 ;i<files.size();i++)  {
+                        if(dragboard.hasFiles()&& dragboard.getFiles().get(i).getName().toLowerCase().endsWith(extension)){
+                            success = true;
+                            File file = dragboard.getFiles().get(i);
+
+                            inputListView.getItems().add(file);
+                        }
+                    }
                 }
-            }
+
             event.setDropCompleted(success);
             event.consume();
         });
