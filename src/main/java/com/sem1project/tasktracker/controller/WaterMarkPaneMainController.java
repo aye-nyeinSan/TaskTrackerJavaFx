@@ -17,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -30,20 +31,51 @@ public class WaterMarkPaneMainController {
     @FXML private TextField watermarkText;
     @FXML private Slider visibilitySlider;
     @FXML private Label visibility;
+    @FXML private Label rotation;
+    @FXML private Slider rotationSlider;
+    @FXML private Label sizeLbl;
+    @FXML private Slider sizeSlider;
+    @FXML private Label ImgQuality;
+    @FXML private Slider ImgQualitySlider;
 
 
     public void initialize(){
             //Bind Label and Slider
-            visibility.setText("0%");
-            DoubleBinding visibilityBinding = visibilitySlider.valueProperty().divide(100).multiply(100);
-            visibility.textProperty().bind(visibilityBinding.asString("%.0f%%"));
+        DoubleBinding visibilityBinding = visibilitySlider.valueProperty().divide(100).multiply(100);
+        visibility.setText("0%");
+        visibilitySlider.valueProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    // Update the label's text.
+                    visibilitySlider.setStyle("-fx-accent: aqua");
+                    visibility.textProperty().bind(visibilityBinding.asString("%.0f%%"));
+                });
+        rotation.setText("0°");
+        DoubleBinding rotationBinding = rotationSlider.valueProperty().divide(100).multiply(100);
+        rotationSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // Update the label's text.
+            rotationSlider.setStyle("-fx-accent: aqua");
+            rotation.textProperty().bind(rotationBinding.asString("%.0f\u00B0"));
+        });
+        sizeLbl.setText("0%");
+        DoubleBinding sizeBinding = sizeSlider.valueProperty().divide(100).multiply(100);
+       sizeSlider.valueProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    // Update the label's text.
+                 sizeSlider.setStyle("-fx-accent: aqua");
+                    sizeLbl.textProperty().bind(sizeBinding.asString("%.0f%%"));
+                });
+
+        ImgQuality.setText("0%");
+        DoubleBinding ImgBinding = ImgQualitySlider.valueProperty().divide(100).multiply(100);
+       ImgQualitySlider.valueProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    // Update the label's text.
+                    ImgQualitySlider.setStyle("-fx-accent: aqua");
+                   ImgQuality.textProperty().bind(ImgBinding.asString("%.0f%%"));
+                });
 
             
-            visibilitySlider.valueProperty()
-            .addListener((observable, oldValue, newValue) -> {
-                // Update the label's text.
-                visibility.setText(String.format("%.0f%%", newValue));
-              });
+
 
 
 
