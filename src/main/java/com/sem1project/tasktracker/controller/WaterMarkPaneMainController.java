@@ -28,39 +28,29 @@ public class WaterMarkPaneMainController {
     public void initialize(){
 
 
-
         watermarkText.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Update the image preview here
-            Text textNode = new Text(watermarkText.getText());
+            // Create a Text object with the updated text
+            Text textNode = new Text(newValue);
             textNode.setStroke(Color.BLACK);
             textNode.setFont(Font.font("Arial", 300));
-            ImageView imageView= new ImageView(ImgPreview.getImage());
-            StackPane stackPane = new StackPane();
-            // Create a SnapshotParameters object to render the Text object
+
+            // Create an ImageView with the current image in ImgPreview
+            ImageView imageView = new ImageView(ImgPreview.getImage());
+
+            // Create a StackPane to combine the image and text
+            StackPane stackPane = new StackPane(imageView, textNode);
+
+            // Create a SnapshotParameters object to render the combined StackPane
             SnapshotParameters params = new SnapshotParameters();
-            //System.out.println(params);
             params.setFill(Color.TRANSPARENT);
-            if (newValue.isEmpty() && this.watermarkText.getText().isEmpty()) {
-                // Clear the textNode when the TextField is empty
-                textNode.setText("");
-                stackPane.getChildren().clear();
-                stackPane.getChildren().addAll(
-                        imageView,
-                        textNode
-                );
 
-            } else {
-                textNode.setText(newValue);
-                stackPane.getChildren().clear();
-                stackPane.getChildren().addAll(
-                        imageView,
-                        textNode
-                );
-                ImgPreview.setImage(stackPane.snapshot(params, null));
+            // Clear the previous content in ImgPreview
+            ImgPreview.setImage(null);
+           // stackPane.getChildren().addAll(imageView);
 
-            }
+            // Take a snapshot of the combined StackPane and set it as the new image in ImgPreview
+            ImgPreview.setImage(stackPane.snapshot(params, null));
         });
-
 
 
 
