@@ -78,7 +78,7 @@ public class WaterMarkPaneMainController {
 
 
 
-
+        //Update Preview
         watermarkText.textProperty().addListener((observable, oldValue, newValue) -> {
             // Create a Text object with the updated text
             Text textNode = new Text(newValue);

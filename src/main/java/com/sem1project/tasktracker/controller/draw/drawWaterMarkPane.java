@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static com.sem1project.tasktracker.Launcher.stage;
+
 public class drawWaterMarkPane {
 
 
@@ -92,18 +94,27 @@ public class drawWaterMarkPane {
 
             System.out.println("Clicked watermark!!");
             // Load the WaterMarkPane.fxml
-                loader = new FXMLLoader(Launcher.class.getResource("WaterMarkPane.fxml"));
-                Parent root;
-                try {
-                    root = loader.load();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return; // Handle the exception as needed
-                }
-                //get controller WaterMarkPane.fxml >> controller is WaterMarkPaneMainController
-                WaterMarkPaneMainController watermarkpanecontroller= loader.getController();
+
                List<File> inputListViewItems = inputListView.getItems();
-               watermarkpanecontroller.OnImgPreview(inputListViewItems);
+               if( inputListViewItems.isEmpty())
+               {    //.getIcons().add(new Image(Launcher.class.getResource("assets/1stsemesterIcon.jpg").toString()));
+                   Alert alert = new Alert(Alert.AlertType.ERROR);
+                   alert.setHeaderText(null);
+                   alert.setTitle("Error");
+                   alert.setContentText("Humm!!! It seems like you forgot to upload files.");
+                   alert.showAndWait();
+               }else
+                   loader = new FXMLLoader(Launcher.class.getResource("WaterMarkPane.fxml"));
+                    Parent root;
+                    try {
+                        root = loader.load();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return; // Handle the exception as needed
+                    }
+                    //get controller WaterMarkPane.fxml >> controller is WaterMarkPaneMainController
+                    WaterMarkPaneMainController watermarkpanecontroller= loader.getController();
+               { watermarkpanecontroller.OnImgPreview(inputListViewItems);
 
                 // Create a new stage for the WaterMarkPane
                 Stage watermarkStage = new Stage();
@@ -114,7 +125,8 @@ public class drawWaterMarkPane {
                 watermarkStage.setScene(new Scene(root));
 
                 // Show the stage
-                watermarkStage.show();
+                watermarkStage.show();}
+
 
 
     }
