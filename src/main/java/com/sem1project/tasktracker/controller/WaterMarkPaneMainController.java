@@ -2,6 +2,8 @@ package com.sem1project.tasktracker.controller;
 
 import com.sem1project.tasktracker.Launcher;
 import com.sem1project.tasktracker.controller.draw.drawWaterMarkPane;
+
+import javafx.beans.binding.DoubleBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -9,6 +11,8 @@ import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,8 +28,23 @@ import java.util.List;
 public class WaterMarkPaneMainController {
     @FXML private ImageView ImgPreview;
     @FXML private TextField watermarkText;
+    @FXML private Slider visibilitySlider;
+    @FXML private Label visibility;
+
 
     public void initialize(){
+            //Bind Label and Slider
+            visibility.setText("0%");
+            DoubleBinding visibilityBinding = visibilitySlider.valueProperty().divide(100).multiply(100);
+            visibility.textProperty().bind(visibilityBinding.asString("%.0f%%"));
+
+            
+            visibilitySlider.valueProperty()
+            .addListener((observable, oldValue, newValue) -> {
+                // Update the label's text.
+                visibility.setText(String.format("%.0f%%", newValue));
+              });
+
 
 
 

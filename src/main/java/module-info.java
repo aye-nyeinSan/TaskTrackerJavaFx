@@ -1,6 +1,7 @@
 module com.sem1project.tasktracker {
     requires javafx.controls;
     requires javafx.fxml;
+    requires transitive javafx.graphics;
 
     opens com.sem1project.tasktracker to javafx.fxml;
     opens com.sem1project.tasktracker.controller.draw to javafx.fxml;
