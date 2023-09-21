@@ -21,11 +21,6 @@ import static com.sem1project.tasktracker.Launcher.stage;
 
 public class drawWaterMarkPane {
 
-
-
-
-
-
     FXMLLoader loader;
 
     @FXML
@@ -49,20 +44,19 @@ public class drawWaterMarkPane {
         //Dragging the item
         inputListView.setOnDragOver(dragEvent -> {
             Dragboard db = dragEvent.getDragboard();
-            final String[] acceptedExtensions = {".png", ".jpg", ".zip",".rar"};
            // boolean isAccepted = false;
             List<File> files = db.getFiles();
 
             for (File file : files) {
                 String fileName = file.getName().toLowerCase();
-                for (String extension : acceptedExtensions) {
-                    if (db.hasFiles() && fileName.endsWith(extension)) {
+
+                    if (db.hasFiles() && fileName.endsWith(".png")) {
                       //  isAccepted = true;
                         dragEvent.acceptTransferModes(TransferMode.COPY);
 
                     }else {
                         dragEvent.consume();
-                    }
+
                 }
             }
         });
@@ -70,20 +64,20 @@ public class drawWaterMarkPane {
         //checking the target items are acceptable or not
         inputListView.setOnDragDropped(event -> {
             Dragboard dragboard = event.getDragboard();
-            final String[] acceptedExtensions = {".png", ".jpg", ".zip",".rar"};
+
 
             List<File> files = dragboard.getFiles();
             boolean success = false;
-                for ( String extension : acceptedExtensions) {
+
                      for (int i = 0 ;i<files.size();i++)  {
-                        if(dragboard.hasFiles()&& dragboard.getFiles().get(i).getName().toLowerCase().endsWith(extension)){
+                        if(dragboard.hasFiles()&& dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".png")){
                             success = true;
                             File file = dragboard.getFiles().get(i);
 
                             inputListView.getItems().add(file);
                         }
                     }
-                }
+
 
             event.setDropCompleted(success);
             event.consume();
@@ -97,24 +91,19 @@ public class drawWaterMarkPane {
 
                List<File> inputListViewItems = inputListView.getItems();
                if( inputListViewItems.isEmpty())
-               {    //.getIcons().add(new Image(Launcher.class.getResource("assets/1stsemesterIcon.jpg").toString()));
+               {
                    Alert alert = new Alert(Alert.AlertType.ERROR);
                    alert.setHeaderText(null);
                    alert.setTitle("Error");
-                   alert.setContentText("Humm!!! It seems like you forgot to upload files.");
+                   alert.setContentText("Humm!!! \n It seems like you forgot to upload files.");
                    alert.showAndWait();
                }else
-                   loader = new FXMLLoader(Launcher.class.getResource("WaterMarkPane.fxml"));
-                    Parent root;
-                    try {
-                        root = loader.load();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return; // Handle the exception as needed
-                    }
+               {
+                   loader = new FXMLLoader(Launcher.class.getResource("WaterMarkWorkPane.fxml"));
+                    Parent root = loader.load();
                     //get controller WaterMarkPane.fxml >> controller is WaterMarkPaneMainController
                     WaterMarkPaneMainController watermarkpanecontroller= loader.getController();
-               { watermarkpanecontroller.OnImgPreview(inputListViewItems);
+                    watermarkpanecontroller.OnImgPreview(inputListViewItems);
 
                 // Create a new stage for the WaterMarkPane
                 Stage watermarkStage = new Stage();
@@ -125,7 +114,8 @@ public class drawWaterMarkPane {
                 watermarkStage.setScene(new Scene(root));
 
                 // Show the stage
-                watermarkStage.show();}
+                watermarkStage.show();
+               }
 
 
 

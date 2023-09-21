@@ -35,8 +35,7 @@ public class WaterMarkPaneMainController {
     @FXML private Slider rotationSlider;
     @FXML private Label sizeLbl;
     @FXML private Slider sizeSlider;
-    @FXML private Label ImgQuality;
-    @FXML private Slider ImgQualitySlider;
+
 
 
     public void initialize(){
@@ -64,15 +63,15 @@ public class WaterMarkPaneMainController {
                  sizeSlider.setStyle("-fx-accent: aqua");
                     sizeLbl.textProperty().bind(sizeBinding.asString("%.0f%%"));
                 });
-
-        ImgQuality.setText("0%");
-        DoubleBinding ImgBinding = ImgQualitySlider.valueProperty().divide(100).multiply(100);
-       ImgQualitySlider.valueProperty()
-                .addListener((observable, oldValue, newValue) -> {
-                    // Update the label's text.
-                    ImgQualitySlider.setStyle("-fx-accent: aqua");
-                   ImgQuality.textProperty().bind(ImgBinding.asString("%.0f%%"));
-                });
+//
+//        ImgQuality.setText("0%");
+//        DoubleBinding ImgBinding = ImgQualitySlider.valueProperty().divide(100).multiply(100);
+//       ImgQualitySlider.valueProperty()
+//                .addListener((observable, oldValue, newValue) -> {
+//                    // Update the label's text.
+//                    ImgQualitySlider.setStyle("-fx-accent: aqua");
+//                   ImgQuality.textProperty().bind(ImgBinding.asString("%.0f%%"));
+//                });
 
             
 
