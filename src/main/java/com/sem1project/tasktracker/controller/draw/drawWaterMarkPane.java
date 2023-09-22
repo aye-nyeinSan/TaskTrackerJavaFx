@@ -8,16 +8,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-
-import static com.sem1project.tasktracker.Launcher.stage;
 
 public class drawWaterMarkPane {
 
@@ -44,15 +45,21 @@ public class drawWaterMarkPane {
         //Dragging the item
         inputListView.setOnDragOver(dragEvent -> {
             Dragboard db = dragEvent.getDragboard();
-           // boolean isAccepted = false;
+           boolean isAccepted = false;
             List<File> files = db.getFiles();
 
             for (File file : files) {
                 String fileName = file.getName().toLowerCase();
 
-                    if (db.hasFiles() && fileName.endsWith(".png")) {
-                      //  isAccepted = true;
-                        dragEvent.acceptTransferModes(TransferMode.COPY);
+                    if (db.hasFiles() && fileName.endsWith(".png")
+                            ||fileName.toLowerCase().endsWith(".jpg")
+                            ||fileName.toLowerCase().endsWith(".jpeg")
+                            || fileName.toLowerCase().endsWith(".zip")) {
+                       isAccepted = true;
+                       if(isAccepted){
+                            dragEvent.acceptTransferModes(TransferMode.COPY);
+                        }
+
 
                     }else {
                         dragEvent.consume();
@@ -70,18 +77,62 @@ public class drawWaterMarkPane {
             boolean success = false;
 
                      for (int i = 0 ;i<files.size();i++)  {
-                        if(dragboard.hasFiles()&& dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".png")){
+                        if(dragboard.hasFiles()&&
+                                ( dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".png")
+                                        ||dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".jpg")
+                                        ||dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".jpeg"))){
+                            success = true;
+                            File file = dragboard.getFiles().get(i);
+                            inputListView.getItems().add(file);
+
+                        } else if (dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".zip")) {
                             success = true;
                             File file = dragboard.getFiles().get(i);
 
-                            inputListView.getItems().add(file);
+                            zipArchive(file,inputListView);
+
+
                         }
-                    }
+                     }
 
 
             event.setDropCompleted(success);
             event.consume();
         });
+
+    }
+    public void zipArchive(File zipFile, ListView<File> inputListView) {
+        try {
+            try (ZipArchiveInputStream zipInput = new ZipArchiveInputStream(new FileInputStream(zipFile))) {
+                ZipArchiveEntry entry;
+                while ((entry = zipInput.getNextZipEntry()) != null) {
+                    if (!entry.isDirectory()) {
+                        String entryName = entry.getName();
+                        if(entryName.endsWith(".jpg") || entryName.endsWith(".png")|| entryName.endsWith(".jpeg")){
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            File extractedFile = new File("path_to_extracted_files", entryName);
+                            extractedFile.getParentFile().mkdirs();
+                            try (FileOutputStream outputStream = new FileOutputStream(extractedFile)) {
+                                while ((bytesRead = zipInput.read(buffer)) != -1) {
+                                    outputStream.write(buffer, 0, bytesRead);
+                                }
+                            }
+                            inputListView.getItems().add(new File(extractedFile.getAbsolutePath()));
+                        }
+
+                    }
+                }
+
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void setSelectedFiles(List<File> selectedFiles) {
+        if (inputListView != null && selectedFiles != null && !selectedFiles.isEmpty()) {
+            inputListView.getItems().addAll(selectedFiles);
+        }
     }
 
     public  void OnDrawWaterMark() throws IOException {
