@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class drawWaterMarkPane {
@@ -26,6 +27,7 @@ public class drawWaterMarkPane {
 
     @FXML
     private ListView<File> inputListView;
+
 
 
 
@@ -71,9 +73,7 @@ public class drawWaterMarkPane {
         //checking the target items are acceptable or not
         inputListView.setOnDragDropped(event -> {
             Dragboard dragboard = event.getDragboard();
-
-
-            List<File> files = dragboard.getFiles();
+             List<File> files = dragboard.getFiles();
             boolean success = false;
 
                      for (int i = 0 ;i<files.size();i++)  {
@@ -89,10 +89,7 @@ public class drawWaterMarkPane {
                             success = true;
                             File file = dragboard.getFiles().get(i);
 
-                            zipArchive(file,inputListView);
-
-
-                        }
+                            zipArchive(file,inputListView);}
                      }
 
 
@@ -129,11 +126,6 @@ public class drawWaterMarkPane {
             e.printStackTrace();
         }
     }
-    public void setSelectedFiles(List<File> selectedFiles) {
-        if (inputListView != null && selectedFiles != null && !selectedFiles.isEmpty()) {
-            inputListView.getItems().addAll(selectedFiles);
-        }
-    }
 
     public  void OnDrawWaterMark() throws IOException {
 
@@ -155,6 +147,8 @@ public class drawWaterMarkPane {
                     //get controller WaterMarkPane.fxml >> controller is WaterMarkPaneMainController
                     WaterMarkPaneMainController watermarkpanecontroller= loader.getController();
                     watermarkpanecontroller.OnImgPreview(inputListViewItems);
+                    watermarkpanecontroller.OnDefaultValue();
+
 
                 // Create a new stage for the WaterMarkPane
                 Stage watermarkStage = new Stage();
