@@ -25,7 +25,7 @@
       <Label fx:id="visibility" layoutX="252.0" layoutY="99.0" text="Label" />
       <Label fx:id="rotation" layoutX="252.0" layoutY="149.0" text="Label" />
       <Label fx:id="sizeLbl" layoutX="252.0" layoutY="190.0" text="Label" />
-      <ColorPicker layoutX="225.0" layoutY="42.0" prefHeight="31.0" prefWidth="56.0" />
+      <ColorPicker fx:id="colorPicker" layoutX="225.0" layoutY="42.0" prefHeight="31.0" prefWidth="56.0" />
       <ComboBox layoutX="29.0" layoutY="289.0" prefHeight="31.0" prefWidth="86.0" promptText="JPG" />
       <Label layoutX="26.0" layoutY="254.0" text="Image Format" />
       <Label layoutX="357.0" layoutY="14.0" text="Preview" />
