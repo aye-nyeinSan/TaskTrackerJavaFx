@@ -11,6 +11,9 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="444.0" prefWidth="644.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sem1project.tasktracker.controller.WaterMarkPaneMainController">
    <children>
@@ -54,8 +57,40 @@
             <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="2" />
          </children>
       </GridPane>
-      <Button layoutX="555.0" layoutY="399.0" mnemonicParsing="false" text="Apply" />
-      <Button layoutX="480.0" layoutY="399.0" mnemonicParsing="false" onAction="#OnCancelWaterMark" text="Cancel" />
+      <Button layoutX="535.0" layoutY="399.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="78.0" style="-fx-border-style: dashed; -fx-background-color: pink;" text="Apply">
+         <textFill>
+            <LinearGradient endX="1.0" endY="1.0" startX="1.0" startY="1.0">
+               <stops>
+                  <Stop>
+                     <color>
+                        <Color />
+                     </color>
+                  </Stop>
+                  <Stop offset="1.0">
+                     <color>
+                        <Color red="1.0" green="1.0" blue="1.0" />
+                     </color>
+                  </Stop>
+               </stops>
+            </LinearGradient>
+         </textFill></Button>
+      <Button layoutX="443.0" layoutY="399.0" mnemonicParsing="false" onAction="#OnCancelWaterMark" prefHeight="21.0" prefWidth="78.0" style="-fx-background-color: pink;" text="Cancel">
+         <textFill>
+            <LinearGradient endX="1.0" endY="1.0" startX="1.0" startY="1.0">
+               <stops>
+                  <Stop>
+                     <color>
+                        <Color />
+                     </color>
+                  </Stop>
+                  <Stop offset="1.0">
+                     <color>
+                        <Color red="1.0" green="1.0" blue="1.0" />
+                     </color>
+                  </Stop>
+               </stops>
+            </LinearGradient>
+         </textFill></Button>
       <Button layoutX="-90.0" layoutY="20.0" mnemonicParsing="false" text="Button" />
       <Button layoutX="-122.0" layoutY="5.0" mnemonicParsing="false" text="Button" />
    </children>
