@@ -53,17 +53,25 @@ public class WaterMarkPaneMainController {
     @FXML private ColorPicker colorPicker;
     @FXML private ComboBox<String> comboFileType;
 
+    @FXML private Button leftButt;
+    @FXML private Button rightButt;
+    @FXML private Button downButt;
+    @FXML private Button centerButt;
+
+
+
     @FXML private ArrayList<Image> inputImages= new ArrayList<>();
-    private int currentImageIndex;
+    private int currentImageIndex = -1;
+    private static int watermarkYPosition = 0;
+    private static int watermarkXPosition = 0;
 
 
 
 
 
     public void initialize(){
-        comboFileType.getItems().removeAll();
-        comboFileType.getItems().addAll( "JPG","PNG", "JPEG");
-        comboFileType.getSelectionModel().select("JPG");
+
+        combotypeAddition();
 
             //Bind Label and Slider
         visibility.setText("0%");
@@ -111,6 +119,50 @@ public class WaterMarkPaneMainController {
 
     }
 
+    private void combotypeAddition() {
+        comboFileType.getItems().removeAll();
+        comboFileType.getItems().addAll( "JPG","PNG", "JPEG");
+        comboFileType.getSelectionModel().select("JPG");
+    }
+    @FXML
+    private void UpButtclicked(){
+        System.out.println("up was clicked!");
+        watermarkYPosition -= 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void downButtclicked(){
+        System.out.println("Down was clicked!");
+        watermarkYPosition += 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void rightButtclicked(){
+        System.out.println("right was clicked!");
+        watermarkXPosition += 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void leftButtclicked(){
+        System.out.println("left was clicked!");
+        watermarkXPosition -= 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void centerButtclicked(){
+        System.out.println("center was clicked!");
+        watermarkYPosition = 0;
+        watermarkXPosition = 0;
+        updateWatermarkPreview();
+
+    }
+
+
+
 
 
     @FXML
@@ -148,14 +200,13 @@ public class WaterMarkPaneMainController {
 
         if (waterMarkText != null && !(this.inputImages.isEmpty())) {
             List<Image> watermarkedImages = new ArrayList();
-            Iterator inputImgObj = this.inputImages.iterator();
-            while (inputImgObj.hasNext()) {
-                Image img = (Image) inputImgObj.next();
+            for (Image img:inputImages) {
                 Image watermarkedImage = addWatermark(img, waterMarkText, newColor, newSize,visibility, rotation);
                 watermarkedImages.add(watermarkedImage);
             }
+
             this.ImgPreview.setImage(null);
-            this.ImgPreview.setImage((Image) watermarkedImages.get(currentImageIndex));
+            this.ImgPreview.setImage(watermarkedImages.get(currentImageIndex));
 
         }
     }
@@ -168,7 +219,8 @@ public class WaterMarkPaneMainController {
         String text = watermarkText;
         BufferedImage originalImage = SwingFXUtils.fromFXImage(image, null);
 
-        BufferedImage watermarkedImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage watermarkedImage = new BufferedImage(
+                originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = watermarkedImage.createGraphics();
 
         graphics.drawImage(originalImage, 0, 0, (ImageObserver)null);
@@ -181,8 +233,9 @@ public class WaterMarkPaneMainController {
 
 
 
-        int x = (watermarkedImage.getWidth() - graphics.getFontMetrics().stringWidth(text)) / 2;
-        int y = watermarkedImage.getHeight() / 2;
+         int x = (watermarkedImage.getWidth() - graphics.getFontMetrics().stringWidth(text)) / 2 + watermarkXPosition;
+        int  y = watermarkedImage.getHeight() / 2 + watermarkYPosition;
+
         if (rotation != 0.0) {
             double centerX = (double)x + (double)graphics.getFontMetrics().stringWidth(text) / 2.0;
             double centerY = (double)y;
@@ -207,14 +260,21 @@ public class WaterMarkPaneMainController {
     }
 
     public void OnImgPreview(List<File> inputListViewItems ){
+        showNextImage();
         for (File inputListViewItem : inputListViewItems) {
             String  filepath = inputListViewItem.getAbsolutePath();
             Image image = new Image("file:" + filepath);
             this.inputImages.add(image);
+
         }
+        currentImageIndex = inputImages.size()-1;
+        System.out.println("current size: "+ currentImageIndex);
+        if(this.ImgPreview.getImage() == null){
         this.ImgPreview.setImage(inputImages.get(0));
+        }
         System.out.println("Images from input listView are saved in image arraylist!");
     }
+
 
 
     public void OnCancelWaterMark(){
@@ -222,6 +282,7 @@ public class WaterMarkPaneMainController {
        Launcher.getStage().close();
 
     }
+
 
 
     public void OnApplyWaterMark(ActionEvent actionEvent) {
