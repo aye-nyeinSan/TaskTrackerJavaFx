@@ -28,6 +28,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.awt.*;
+import java.awt.Button;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
@@ -50,13 +51,20 @@ public class WaterMarkPaneMainController {
     @FXML private Label sizeLbl;
     @FXML private Slider sizeSlider;
     @FXML private ColorPicker colorPicker;
+    @FXML private ComboBox<String> comboFileType;
+
     @FXML private ArrayList<Image> inputImages= new ArrayList<>();
+    private int currentImageIndex;
 
 
 
 
 
     public void initialize(){
+        comboFileType.getItems().removeAll();
+        comboFileType.getItems().addAll( "JPG","PNG", "JPEG");
+        comboFileType.getSelectionModel().select("JPG");
+
             //Bind Label and Slider
         visibility.setText("0%");
         rotation.setText("0°");
@@ -65,9 +73,9 @@ public class WaterMarkPaneMainController {
         rotationSlider.setMin(-180);
         rotationSlider.setMax(180);
 
-       DoubleBinding binding = visibilitySlider.valueProperty().divide(visibilitySlider.getMax() - visibilitySlider.getMin())
+       DoubleBinding binding = visibilitySlider.valueProperty()
                .subtract(visibilitySlider.getMin())
-               .multiply(100);
+               .multiply(100.0 / (visibilitySlider.getMax() - visibilitySlider.getMin()));
         DoubleBinding sizebinding = sizeSlider.valueProperty().divide(1500).multiply(100);
         // Create a custom binding for rotation as a StringExpression
         StringExpression rotationBinding = Bindings.concat(
@@ -100,7 +108,33 @@ public class WaterMarkPaneMainController {
 
 
 
+
     }
+
+
+
+    @FXML
+    private void showNextImage() {
+        if (!inputImages.isEmpty()) {
+            currentImageIndex = (currentImageIndex + 1) % inputImages.size();
+            updateImageView();}
+    }
+
+    @FXML
+    private void showPreviousImage() {
+        if (!inputImages.isEmpty()) {
+             currentImageIndex = (currentImageIndex - 1 + inputImages.size()) % inputImages.size();
+            updateImageView();
+        }
+    }
+    private void updateImageView() {
+        if (currentImageIndex >= 0 && currentImageIndex < inputImages.size()) {
+            Image img = inputImages.get(currentImageIndex);
+            ImgPreview.setImage(img);
+
+        }
+    }
+
     @FXML
    private void updateWatermarkPreview() {
         Color newColor = this.colorPicker.getValue();
@@ -121,7 +155,7 @@ public class WaterMarkPaneMainController {
                 watermarkedImages.add(watermarkedImage);
             }
             this.ImgPreview.setImage(null);
-            this.ImgPreview.setImage((Image) watermarkedImages.get(0));
+            this.ImgPreview.setImage((Image) watermarkedImages.get(currentImageIndex));
 
         }
     }
@@ -184,7 +218,9 @@ public class WaterMarkPaneMainController {
 
 
     public void OnCancelWaterMark(){
+        inputImages.clear();
        Launcher.getStage().close();
+
     }
 
 

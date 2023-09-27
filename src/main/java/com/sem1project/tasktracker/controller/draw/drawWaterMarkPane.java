@@ -150,6 +150,7 @@ public class drawWaterMarkPane {
                     watermarkpanecontroller.OnDefaultValue();
 
 
+
                 // Create a new stage for the WaterMarkPane
                 Stage watermarkStage = new Stage();
                 Launcher.setStage(watermarkStage);
