@@ -28,9 +28,11 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.awt.*;
+import java.awt.Button;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +41,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import javax.imageio.ImageIO;
 
 public class WaterMarkPaneMainController {
     @FXML private ImageView ImgPreview;
@@ -50,13 +56,28 @@ public class WaterMarkPaneMainController {
     @FXML private Label sizeLbl;
     @FXML private Slider sizeSlider;
     @FXML private ColorPicker colorPicker;
+    @FXML private ComboBox<String> comboFileType;
+
+    @FXML private Button leftButt;
+    @FXML private Button rightButt;
+    @FXML private Button downButt;
+    @FXML private Button centerButt;
+
+
+
     @FXML private ArrayList<Image> inputImages= new ArrayList<>();
+    private int currentImageIndex = -1;
+    private static int watermarkYPosition = 0;
+    private static int watermarkXPosition = 0;
 
 
 
 
 
     public void initialize(){
+
+        combotypeAddition();
+
             //Bind Label and Slider
         visibility.setText("0%");
         rotation.setText("0°");
@@ -65,9 +86,8 @@ public class WaterMarkPaneMainController {
         rotationSlider.setMin(-180);
         rotationSlider.setMax(180);
 
-       DoubleBinding binding = visibilitySlider.valueProperty().divide(visibilitySlider.getMax() - visibilitySlider.getMin())
-               .subtract(visibilitySlider.getMin())
-               .multiply(100);
+       DoubleBinding binding = visibilitySlider.valueProperty()
+               .multiply(100.0 / (visibilitySlider.getMax() - visibilitySlider.getMin()));
         DoubleBinding sizebinding = sizeSlider.valueProperty().divide(1500).multiply(100);
         // Create a custom binding for rotation as a StringExpression
         StringExpression rotationBinding = Bindings.concat(
@@ -100,7 +120,85 @@ public class WaterMarkPaneMainController {
 
 
 
+
     }
+
+    private void combotypeAddition() {
+        comboFileType.getItems().removeAll();
+        comboFileType.getItems().addAll( "JPG","PNG", "JPEG");
+        comboFileType.getSelectionModel().select("JPG");
+    }
+    @FXML
+    private void UpButtclicked(){
+        System.out.println("up was clicked!");
+        watermarkYPosition -= 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void downButtclicked(){
+        System.out.println("Down was clicked!");
+        watermarkYPosition += 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void rightButtclicked(){
+        System.out.println("right was clicked!");
+        watermarkXPosition += 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void leftButtclicked(){
+        System.out.println("left was clicked!");
+        watermarkXPosition -= 30;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    private void centerButtclicked(){
+        System.out.println("center was clicked!");
+        watermarkYPosition = 0;
+        watermarkXPosition = 0;
+        updateWatermarkPreview();
+
+    }
+    @FXML
+    public void leftupCornerClicked() {
+        System.out.println("leftUp was clicked!");
+        watermarkYPosition -=200;
+        watermarkXPosition -= 300;
+        updateWatermarkPreview();
+
+    }
+
+
+
+
+
+    @FXML
+    private void showNextImage() {
+        if (!inputImages.isEmpty()) {
+            currentImageIndex = (currentImageIndex + 1) % inputImages.size();
+            updateImageView();}
+    }
+
+    @FXML
+    private void showPreviousImage() {
+        if (!inputImages.isEmpty()) {
+             currentImageIndex = (currentImageIndex - 1 + inputImages.size()) % inputImages.size();
+            updateImageView();
+        }
+    }
+    private void updateImageView() {
+        if (currentImageIndex >= 0 && currentImageIndex < inputImages.size()) {
+            Image img = inputImages.get(currentImageIndex);
+            ImgPreview.setImage(img);
+
+        }
+    }
+
     @FXML
    private void updateWatermarkPreview() {
         Color newColor = this.colorPicker.getValue();
@@ -114,14 +212,13 @@ public class WaterMarkPaneMainController {
 
         if (waterMarkText != null && !(this.inputImages.isEmpty())) {
             List<Image> watermarkedImages = new ArrayList();
-            Iterator inputImgObj = this.inputImages.iterator();
-            while (inputImgObj.hasNext()) {
-                Image img = (Image) inputImgObj.next();
+            for (Image img:inputImages) {
                 Image watermarkedImage = addWatermark(img, waterMarkText, newColor, newSize,visibility, rotation);
                 watermarkedImages.add(watermarkedImage);
             }
+
             this.ImgPreview.setImage(null);
-            this.ImgPreview.setImage((Image) watermarkedImages.get(0));
+            this.ImgPreview.setImage(watermarkedImages.get(currentImageIndex));
 
         }
     }
@@ -134,21 +231,24 @@ public class WaterMarkPaneMainController {
         String text = watermarkText;
         BufferedImage originalImage = SwingFXUtils.fromFXImage(image, null);
 
-        BufferedImage watermarkedImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage watermarkedImage = new BufferedImage(
+                originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = watermarkedImage.createGraphics();
 
         graphics.drawImage(originalImage, 0, 0, (ImageObserver)null);
         Font javafxFont = Font.font("Arial", FontWeight.BOLD, (double)newSize);
         java.awt.Font awtFont = new java.awt.Font(javafxFont.getFamily(), 0, newSize);
         double normalizedVisibility = Math.max(0.0, Math.min(1.0, visibility));
-        java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) normalizedVisibility);
+        java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) 0.3);
         graphics.setColor(awtColor);
         graphics.setFont(awtFont);
 
 
 
-        int x = (watermarkedImage.getWidth() - graphics.getFontMetrics().stringWidth(text)) / 2;
-        int y = watermarkedImage.getHeight() / 2;
+         int x = (watermarkedImage.getWidth() - graphics.getFontMetrics().stringWidth(text)) / 2 + watermarkXPosition;
+        int  y = watermarkedImage.getHeight() / 2 + watermarkYPosition;
+        System.out.println("X:"+x+" Y:"+y);
+
         if (rotation != 0.0) {
             double centerX = (double)x + (double)graphics.getFontMetrics().stringWidth(text) / 2.0;
             double centerY = (double)y;
@@ -173,28 +273,112 @@ public class WaterMarkPaneMainController {
     }
 
     public void OnImgPreview(List<File> inputListViewItems ){
+        showNextImage();
         for (File inputListViewItem : inputListViewItems) {
             String  filepath = inputListViewItem.getAbsolutePath();
             Image image = new Image("file:" + filepath);
             this.inputImages.add(image);
+
         }
+        currentImageIndex = inputImages.size()-1;
+        System.out.println("current size: "+ currentImageIndex);
+        if(this.ImgPreview.getImage() == null){
         this.ImgPreview.setImage(inputImages.get(0));
+        }
         System.out.println("Images from input listView are saved in image arraylist!");
     }
 
 
+
     public void OnCancelWaterMark(){
+        inputImages.clear();
        Launcher.getStage().close();
+
+    }
+
+
+
+
+// ...
+
+    @FXML
+    private void OnApplyWaterMark() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png", "*.jpeg"));
+        fileChooser.setTitle("Save Image");
+
+        // Show the file save dialog and get the selected file
+        File file = fileChooser.showSaveDialog(new Stage());
+
+        if (file != null) {
+            // Ensure the selected file has the appropriate extension
+            String selectedExtension = comboFileType.getSelectionModel().getSelectedItem();
+            if (!file.getName().toLowerCase().endsWith("." + selectedExtension.toLowerCase())) {
+                file = new File(file.getName(),  "." + selectedExtension.toLowerCase());
+            }
+
+            // Now you can save your image to the selected file using FileOutputStream
+            try {
+                Image imageToSave = ImgPreview.getImage(); // Get the image from ImgPreview
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageToSave, null);
+                ImageIO.write(bufferedImage, selectedExtension.toLowerCase(), file);
+
+                // Optionally, you can show a success message to the user
+                System.out.println("File saved successfully: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                // Handle any IOException that may occur
+                e.printStackTrace();
+                // Optionally, show an error message to the user
+                System.err.println("Error saving the file.");
+            }
+        }
     }
 
 
-    public void OnApplyWaterMark(ActionEvent actionEvent) {
-
-    }
 
     public void OnDefaultValue() {
         this.visibilitySlider.setValue(65);
         this.sizeSlider.setValue(100);
         this.rotationSlider.setValue(0);
     }
+
+
+//    private void saveToDirectory(List<BufferedImage> resizedImages) throws FileNotFoundException {
+//        String fileType = comboFile.getValue();
+//        FileChooser fileChooser=new FileChooser();
+//        fileChooser.setTitle("Save Resized Images");
+//        Stage stage=(Stage) anchorId.getScene().getWindow();
+//        File selectedDirectory=fileChooser.showSaveDialog(stage);
+//
+//        if(selectedDirectory!=null) {
+//            try {
+//                if (resizedImages.size() == 1) {
+//                    BufferedImage image = resizedImages.get(0);
+//                    String fileName = selectedDirectory.getName()+"."+fileType;
+//                    File outputFile = new File(selectedDirectory.getParent(),fileName);
+//                    ImageIO.write(image, fileType, outputFile);
+//                } else if (resizedImages.size() > 1) {
+//                    String zipFileName = selectedDirectory.getAbsolutePath()+".zip";
+//                    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(zipFileName)))) {
+//                        int i = 1;
+//                        for (BufferedImage image : resizedImages) {
+//                            String entryName = selectedDirectory.getName() + i + "." + fileType;
+//                            ZipEntry entry = new ZipEntry(entryName);
+//                            zipOutputStream.putNextEntry(entry);
+//                            ImageIO.write(image, fileType, zipOutputStream);
+//                            zipOutputStream.closeEntry();
+//                            i++;
+//                        }
+//                    }
+//                }
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//            catch (IOException e){
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
+
 }
