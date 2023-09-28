@@ -89,7 +89,7 @@
                </graphic></Button>
          </children>
       </GridPane>
-      <Button layoutX="535.0" layoutY="399.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="78.0" style="-fx-border-style: dashed; -fx-background-color: pink;" text="Apply">
+      <Button layoutX="535.0" layoutY="399.0" mnemonicParsing="false" onAction="#OnApplyWaterMark" prefHeight="31.0" prefWidth="78.0" style="-fx-border-style: dashed; -fx-background-color: pink;" text="Apply">
          <textFill>
             <LinearGradient endX="1.0" endY="1.0" startX="1.0" startY="1.0">
                <stops>
@@ -133,7 +133,7 @@
                </image>
             </ImageView>
          </graphic></Button>
-      <Button layoutX="463.0" layoutY="198.0" mnemonicParsing="false" onAction="#showNextImage" prefHeight="35.0" prefWidth="42.0">
+      <Button layoutX="475.0" layoutY="198.0" mnemonicParsing="false" onAction="#showNextImage" prefHeight="35.0" prefWidth="42.0">
          <graphic>
             <ImageView fitHeight="28.0" fitWidth="31.0">
                <image>

@@ -32,6 +32,7 @@ import java.awt.Button;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +41,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import javax.imageio.ImageIO;
 
 public class WaterMarkPaneMainController {
     @FXML private ImageView ImgPreview;
@@ -82,7 +87,6 @@ public class WaterMarkPaneMainController {
         rotationSlider.setMax(180);
 
        DoubleBinding binding = visibilitySlider.valueProperty()
-               .subtract(visibilitySlider.getMin())
                .multiply(100.0 / (visibilitySlider.getMax() - visibilitySlider.getMin()));
         DoubleBinding sizebinding = sizeSlider.valueProperty().divide(1500).multiply(100);
         // Create a custom binding for rotation as a StringExpression
@@ -160,6 +164,14 @@ public class WaterMarkPaneMainController {
         updateWatermarkPreview();
 
     }
+    @FXML
+    public void leftupCornerClicked() {
+        System.out.println("leftUp was clicked!");
+        watermarkYPosition -=200;
+        watermarkXPosition -= 300;
+        updateWatermarkPreview();
+
+    }
 
 
 
@@ -227,7 +239,7 @@ public class WaterMarkPaneMainController {
         Font javafxFont = Font.font("Arial", FontWeight.BOLD, (double)newSize);
         java.awt.Font awtFont = new java.awt.Font(javafxFont.getFamily(), 0, newSize);
         double normalizedVisibility = Math.max(0.0, Math.min(1.0, visibility));
-        java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) normalizedVisibility);
+        java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) 0.3);
         graphics.setColor(awtColor);
         graphics.setFont(awtFont);
 
@@ -235,6 +247,7 @@ public class WaterMarkPaneMainController {
 
          int x = (watermarkedImage.getWidth() - graphics.getFontMetrics().stringWidth(text)) / 2 + watermarkXPosition;
         int  y = watermarkedImage.getHeight() / 2 + watermarkYPosition;
+        System.out.println("X:"+x+" Y:"+y);
 
         if (rotation != 0.0) {
             double centerX = (double)x + (double)graphics.getFontMetrics().stringWidth(text) / 2.0;
@@ -285,13 +298,87 @@ public class WaterMarkPaneMainController {
 
 
 
-    public void OnApplyWaterMark(ActionEvent actionEvent) {
 
+// ...
+
+    @FXML
+    private void OnApplyWaterMark() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png", "*.jpeg"));
+        fileChooser.setTitle("Save Image");
+
+        // Show the file save dialog and get the selected file
+        File file = fileChooser.showSaveDialog(new Stage());
+
+        if (file != null) {
+            // Ensure the selected file has the appropriate extension
+            String selectedExtension = comboFileType.getSelectionModel().getSelectedItem();
+            if (!file.getName().toLowerCase().endsWith("." + selectedExtension.toLowerCase())) {
+                file = new File(file.getName(),  "." + selectedExtension.toLowerCase());
+            }
+
+            // Now you can save your image to the selected file using FileOutputStream
+            try {
+                Image imageToSave = ImgPreview.getImage(); // Get the image from ImgPreview
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageToSave, null);
+                ImageIO.write(bufferedImage, selectedExtension.toLowerCase(), file);
+
+                // Optionally, you can show a success message to the user
+                System.out.println("File saved successfully: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                // Handle any IOException that may occur
+                e.printStackTrace();
+                // Optionally, show an error message to the user
+                System.err.println("Error saving the file.");
+            }
+        }
     }
+
+
 
     public void OnDefaultValue() {
         this.visibilitySlider.setValue(65);
         this.sizeSlider.setValue(100);
         this.rotationSlider.setValue(0);
     }
+
+
+//    private void saveToDirectory(List<BufferedImage> resizedImages) throws FileNotFoundException {
+//        String fileType = comboFile.getValue();
+//        FileChooser fileChooser=new FileChooser();
+//        fileChooser.setTitle("Save Resized Images");
+//        Stage stage=(Stage) anchorId.getScene().getWindow();
+//        File selectedDirectory=fileChooser.showSaveDialog(stage);
+//
+//        if(selectedDirectory!=null) {
+//            try {
+//                if (resizedImages.size() == 1) {
+//                    BufferedImage image = resizedImages.get(0);
+//                    String fileName = selectedDirectory.getName()+"."+fileType;
+//                    File outputFile = new File(selectedDirectory.getParent(),fileName);
+//                    ImageIO.write(image, fileType, outputFile);
+//                } else if (resizedImages.size() > 1) {
+//                    String zipFileName = selectedDirectory.getAbsolutePath()+".zip";
+//                    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(zipFileName)))) {
+//                        int i = 1;
+//                        for (BufferedImage image : resizedImages) {
+//                            String entryName = selectedDirectory.getName() + i + "." + fileType;
+//                            ZipEntry entry = new ZipEntry(entryName);
+//                            zipOutputStream.putNextEntry(entry);
+//                            ImageIO.write(image, fileType, zipOutputStream);
+//                            zipOutputStream.closeEntry();
+//                            i++;
+//                        }
+//                    }
+//                }
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//            catch (IOException e){
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
+
 }

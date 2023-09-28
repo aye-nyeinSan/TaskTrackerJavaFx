@@ -24,14 +24,14 @@ import java.util.List;
 public class drawWaterMarkPane {
 
     FXMLLoader loader;
+    @FXML Button deleteBtn;
 
     @FXML
     private ListView<File> inputListView;
 
-
-
-
     public void initialize() {
+
+
         //For the list View Cell
         inputListView.setCellFactory(param -> new ListCell<>() { //Custom Cell in ListView
             @Override
@@ -127,6 +127,16 @@ public class drawWaterMarkPane {
         }
     }
 
+
+    public void OnDeleteBtn()
+    {     System.out.println("Delete was clicked!!");
+
+        if (inputListView != null) {
+        inputListView.getItems().remove(inputListView.getSelectionModel().getSelectedItem());
+            System.out.println("inputlistview"+ inputListView.getItems());
+        }
+    }
+    @FXML
     public  void OnDrawWaterMark() throws IOException {
 
             System.out.println("Clicked watermark!!");
