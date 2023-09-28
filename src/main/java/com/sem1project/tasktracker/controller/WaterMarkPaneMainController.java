@@ -58,10 +58,7 @@ public class WaterMarkPaneMainController {
     @FXML private ColorPicker colorPicker;
     @FXML private ComboBox<String> comboFileType;
 
-    @FXML private Button leftButt;
-    @FXML private Button rightButt;
-    @FXML private Button downButt;
-    @FXML private Button centerButt;
+
 
 
 
@@ -86,8 +83,7 @@ public class WaterMarkPaneMainController {
         rotationSlider.setMin(-180);
         rotationSlider.setMax(180);
 
-       DoubleBinding binding = visibilitySlider.valueProperty()
-               .multiply(100.0 / (visibilitySlider.getMax() - visibilitySlider.getMin()));
+       DoubleBinding binding = visibilitySlider.valueProperty().divide(100).multiply(100);
         DoubleBinding sizebinding = sizeSlider.valueProperty().divide(1500).multiply(100);
         // Create a custom binding for rotation as a StringExpression
         StringExpression rotationBinding = Bindings.concat(
@@ -238,8 +234,8 @@ public class WaterMarkPaneMainController {
         graphics.drawImage(originalImage, 0, 0, (ImageObserver)null);
         Font javafxFont = Font.font("Arial", FontWeight.BOLD, (double)newSize);
         java.awt.Font awtFont = new java.awt.Font(javafxFont.getFamily(), 0, newSize);
-        double normalizedVisibility = Math.max(0.0, Math.min(1.0, visibility));
-        java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) 0.3);
+        double normalizedVisibility = (visibility - 0) / (100 - 0);
+        java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) normalizedVisibility);
         graphics.setColor(awtColor);
         graphics.setFont(awtFont);
 

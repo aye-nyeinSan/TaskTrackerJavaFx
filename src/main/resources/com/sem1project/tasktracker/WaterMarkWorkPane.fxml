@@ -23,7 +23,7 @@
       <Label layoutX="25.0" layoutY="99.0" text="Visibility" />
       <Label layoutX="25.0" layoutY="148.0" text="Rotation" />
       <Label layoutX="25.0" layoutY="190.0" text="Size" />
-      <Slider fx:id="visibilitySlider" layoutX="96.0" layoutY="101.0" majorTickUnit="5.0" min="25.0" value="80.0" />
+      <Slider fx:id="visibilitySlider" layoutX="96.0" layoutY="101.0" majorTickUnit="5.0" value="80.0" />
       <Slider fx:id="rotationSlider" layoutX="96.0" layoutY="151.0" />
       <Slider fx:id="sizeSlider" layoutX="98.0" layoutY="192.0" prefHeight="18.0" prefWidth="140.0" />
       <Label fx:id="visibility" layoutX="252.0" layoutY="99.0" text="Label" />
