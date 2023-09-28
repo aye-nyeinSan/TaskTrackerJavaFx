@@ -132,8 +132,14 @@ public class drawWaterMarkPane {
     {     System.out.println("Delete was clicked!!");
 
         if (inputListView != null) {
-        inputListView.getItems().remove(inputListView.getSelectionModel().getSelectedItem());
-            System.out.println("inputlistview"+ inputListView.getItems());
+            if(inputListView.getSelectionModel().getSelectedItem()== null){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText(null);
+                alert.setTitle("Error");
+                alert.setContentText("You didn't select anything!\n Select any file you want to delete.");
+                alert.showAndWait();
+            }
+         inputListView.getItems().remove(inputListView.getSelectionModel().getSelectedItem());
         }
     }
     @FXML
