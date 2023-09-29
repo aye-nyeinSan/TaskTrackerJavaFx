@@ -191,6 +191,7 @@ public class WaterMarkPaneMainController {
         if (currentImageIndex >= 0 && currentImageIndex < inputImages.size()) {
             Image img = inputImages.get(currentImageIndex);
             ImgPreview.setImage(img);
+            updateWatermarkPreview();
 
         }
     }
@@ -218,11 +219,7 @@ public class WaterMarkPaneMainController {
 
         }
     }
-    public static List<Image> addWatermarkToImages(List<Image> images, String watermarkText, Color newColor, int newSize,double visibility,double rotation) {
-        return (List)images.parallelStream().map((image) -> {
-            return addWatermark(image, watermarkText, newColor, newSize,visibility,rotation );
-        }).collect(Collectors.toList());
-    }
+
     private static <graphics> Image addWatermark(Image image, String watermarkText, Color newColor, int newSize, double visibility, double rotation) {
         String text = watermarkText;
         BufferedImage originalImage = SwingFXUtils.fromFXImage(image, null);
@@ -234,6 +231,7 @@ public class WaterMarkPaneMainController {
         graphics.drawImage(originalImage, 0, 0, (ImageObserver)null);
         Font javafxFont = Font.font("Arial", FontWeight.BOLD, (double)newSize);
         java.awt.Font awtFont = new java.awt.Font(javafxFont.getFamily(), 0, newSize);
+
         double normalizedVisibility = (visibility - 0) / (100 - 0);
         java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) normalizedVisibility);
         graphics.setColor(awtColor);
@@ -282,6 +280,7 @@ public class WaterMarkPaneMainController {
         this.ImgPreview.setImage(inputImages.get(0));
         }
         System.out.println("Images from input listView are saved in image arraylist!");
+
     }
 
 

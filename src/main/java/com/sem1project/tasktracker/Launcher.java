@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 
 import javafx.stage.Stage;
@@ -15,12 +16,15 @@ public class Launcher extends Application {
 
 
     public static Stage stage;
+    private static boolean otherStageOpen = false;
 
 
 
     public static void main(String[] args) {
         launch();
     }
+
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -33,9 +37,19 @@ public class Launcher extends Application {
         this.stage.getIcons().add(new Image(Launcher.class.getResource("assets/1stsemesterIcon.jpg").toString()));
         this.stage.setResizable(false);
 
-
         this.stage.setScene(scene);
         this.stage.show();
+        this.stage.setOnCloseRequest(action->{
+
+            if(otherStageOpen){
+                action.consume();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setHeaderText(null);
+                alert.setContentText("You have to cancel or close your current work to close our app.");
+                alert.showAndWait();
+                this.stage.toBack();
+            }
+        });
 
     }
     public static Stage getStage() {
@@ -44,6 +58,9 @@ public class Launcher extends Application {
 
     public static void setStage(Stage stage) {
         Launcher.stage = stage;
+    }
+    public static void setOtherStagesOpen(boolean isOpen) {
+        otherStageOpen = isOpen;
     }
 }
 

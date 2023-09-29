@@ -170,10 +170,14 @@ public class drawWaterMarkPane {
                 // Create a new stage for the WaterMarkPane
                 Stage watermarkStage = new Stage();
                 Launcher.setStage(watermarkStage);
+                Launcher.setOtherStagesOpen(true);
                 watermarkStage.getIcons().add(new Image(Launcher.class.getResource("assets/1stsemesterIcon.jpg").toString()));
                 watermarkStage.setTitle("Watermark Pane");
                 watermarkStage.setResizable(false);
                 watermarkStage.setScene(new Scene(root));
+                watermarkStage.setOnCloseRequest(action->{
+                    Launcher.setOtherStagesOpen(false);
+                });
 
                 // Show the stage
                 watermarkStage.show();
