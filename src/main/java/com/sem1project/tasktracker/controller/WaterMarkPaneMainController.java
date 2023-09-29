@@ -288,6 +288,7 @@ public class WaterMarkPaneMainController {
     public void OnCancelWaterMark(){
         inputImages.clear();
        Launcher.getStage().close();
+       Launcher.setOtherStagesOpen(false);
 
     }
 
