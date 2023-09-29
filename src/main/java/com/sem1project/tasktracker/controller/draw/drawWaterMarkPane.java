@@ -1,7 +1,9 @@
 package com.sem1project.tasktracker.controller.draw;
 
 import com.sem1project.tasktracker.Launcher;
+
 import com.sem1project.tasktracker.controller.ResizeviewController;
+
 import com.sem1project.tasktracker.controller.WaterMarkPaneMainController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Stage;
@@ -19,10 +22,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class drawWaterMarkPane {
+
 
     FXMLLoader loader;
     @FXML Button deleteBtn;
@@ -33,8 +36,8 @@ public class drawWaterMarkPane {
 
 
 
-    public void initialize() {
 
+    public void initialize() {
 
         //For the list View Cell
         inputListView.setCellFactory(param -> new ListCell<>() { //Custom Cell in ListView
@@ -51,6 +54,7 @@ public class drawWaterMarkPane {
         //Dragging the item
         inputListView.setOnDragOver(dragEvent -> {
             Dragboard db = dragEvent.getDragboard();
+
            boolean isAccepted = false;
             List<File> files = db.getFiles();
 
@@ -100,11 +104,10 @@ public class drawWaterMarkPane {
                 alert.showAndWait();
             }
         });
-
-
-        //checking the target items are acceptable or not
+   //checking the target items are acceptable or not
         inputListView.setOnDragDropped(event -> {
             Dragboard dragboard = event.getDragboard();
+
              List<File> files = dragboard.getFiles();
             boolean success = false;
 
@@ -125,9 +128,11 @@ public class drawWaterMarkPane {
                      }
 
 
+
             event.setDropCompleted(success);
             event.consume();
         });
+
 
     }
     public void zipArchive(File zipFile, ListView<File> inputListView) {
@@ -175,10 +180,15 @@ public class drawWaterMarkPane {
         }
     }
     @FXML
+
+
+
+
     public  void OnDrawWaterMark() throws IOException {
 
             System.out.println("Clicked watermark!!");
             // Load the WaterMarkPane.fxml
+
 
                List<File> inputListViewItems = inputListView.getItems();
                if( inputListViewItems.isEmpty())
@@ -190,23 +200,30 @@ public class drawWaterMarkPane {
                    alert.showAndWait();
                }else
                {
-                   loader = new FXMLLoader(Launcher.class.getResource("WaterMarkWorkPane.fxml"));
-                    Parent root = loader.load();
-                    //get controller WaterMarkPane.fxml >> controller is WaterMarkPaneMainController
-                    WaterMarkPaneMainController watermarkpanecontroller= loader.getController();
-                    watermarkpanecontroller.OnImgPreview(inputListViewItems);
-                    watermarkpanecontroller.OnDefaultValue();
+              loader = new FXMLLoader(Launcher.class.getResource("WaterMarkWorkPane.fxml"));
+                Parent root;
+                try {
+                    root = loader.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return; // Handle the exception as needed
+                }
+                //get controller WaterMarkPane.fxml >> controller is WaterMarkPaneMainController
+                WaterMarkPaneMainController watermarkpanecontroller= loader.getController();
 
-
+               watermarkpanecontroller.OnImgPreview(inputListViewItems);
+               watermarkpanecontroller.OnDefaultValue();
 
                 // Create a new stage for the WaterMarkPane
                 Stage watermarkStage = new Stage();
                 Launcher.setStage(watermarkStage);
+
                 Launcher.setOtherStagesOpen(true);
                 watermarkStage.getIcons().add(new Image(Launcher.class.getResource("assets/1stsemesterIcon.jpg").toString()));
                 watermarkStage.setTitle("Watermark Pane");
                 watermarkStage.setResizable(false);
                 watermarkStage.setScene(new Scene(root));
+
                 watermarkStage.setOnCloseRequest(action->{
                     Launcher.setOtherStagesOpen(false);
                 });
@@ -214,7 +231,6 @@ public class drawWaterMarkPane {
                 // Show the stage
                 watermarkStage.show();
                }
-
 
 
     }

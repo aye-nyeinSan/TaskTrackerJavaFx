@@ -7,6 +7,7 @@ module com.sem1project.tasktracker {
     requires java.desktop;
     requires  javafx.swing;
 
+
     opens com.sem1project.tasktracker to javafx.fxml;
     opens com.sem1project.tasktracker.controller.draw to javafx.fxml;
     exports com.sem1project.tasktracker;

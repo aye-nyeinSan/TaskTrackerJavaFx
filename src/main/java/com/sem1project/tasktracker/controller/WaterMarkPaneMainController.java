@@ -3,52 +3,38 @@ package com.sem1project.tasktracker.controller;
 import com.sem1project.tasktracker.Launcher;
 import com.sem1project.tasktracker.controller.draw.drawWaterMarkPane;
 
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 
 import java.awt.*;
-import java.awt.Button;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
-import java.text.AttributedCharacterIterator;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import javafx.embed.swing.SwingFXUtils;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import javax.imageio.ImageIO;
 
+
 public class WaterMarkPaneMainController {
-    @FXML private ImageView ImgPreview;
+    @FXML
+    private ImageView ImgPreview;
     @FXML private TextField watermarkText;
+
     @FXML private Slider visibilitySlider = new Slider(0,100,1);
     @FXML private Label visibility;
     @FXML private Label rotation;
@@ -58,18 +44,10 @@ public class WaterMarkPaneMainController {
     @FXML private ColorPicker colorPicker;
     @FXML private ComboBox<String> comboFileType;
 
-
-
-
-
     @FXML private ArrayList<Image> inputImages= new ArrayList<>();
     private int currentImageIndex = -1;
     private static int watermarkYPosition = 0;
     private static int watermarkXPosition = 0;
-
-
-
-
 
     public void initialize(){
 
@@ -113,9 +91,6 @@ public class WaterMarkPaneMainController {
 
            this.updateWatermarkPreview();
         });
-
-
-
 
     }
 
@@ -274,7 +249,7 @@ public class WaterMarkPaneMainController {
     }
 
 
-
+@FXML
     public void OnCancelWaterMark(){
         inputImages.clear();
        Launcher.getStage().close();
@@ -321,7 +296,7 @@ public class WaterMarkPaneMainController {
     }
 
 
-
+@FXML
     public void OnDefaultValue() {
         this.visibilitySlider.setValue(65);
         this.sizeSlider.setValue(100);
@@ -365,6 +340,13 @@ public class WaterMarkPaneMainController {
 //            }
 //        }
 //    }
+
+
+
+
+
+
+
 
 
 }
