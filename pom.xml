@@ -53,6 +53,11 @@
             <artifactId>javafx-swing</artifactId>
             <version>21-ea+24</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.23.0</version>
+        </dependency>
     </dependencies>
 
     <build>

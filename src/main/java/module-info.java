@@ -4,6 +4,7 @@ module com.sem1project.tasktracker {
     requires java.desktop;
     requires org.apache.commons.imaging;
     requires javafx.swing;
+    requires org.apache.commons.compress;
 
 
     opens com.sem1project.tasktracker to javafx.fxml;
