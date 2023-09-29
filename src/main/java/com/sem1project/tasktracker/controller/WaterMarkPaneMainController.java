@@ -1,7 +1,6 @@
 package com.sem1project.tasktracker.controller;
 
 import com.sem1project.tasktracker.Launcher;
-import com.sem1project.tasktracker.controller.draw.drawWaterMarkPane;
 
 
 import javafx.beans.binding.Bindings;
@@ -20,11 +19,9 @@ import javafx.scene.text.FontWeight;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -106,8 +103,8 @@ public class WaterMarkPaneMainController {
 
     private void combotypeAddition() {
 //        comboFileType.getItems().removeAll();
-        comboFileType.getItems().addAll( "JPEG","PNG");
-        comboFileType.getSelectionModel().select("JPEG");
+        comboFileType.getItems().addAll( "JPG","PNG","JPEG");
+        comboFileType.getSelectionModel().select("JPG");
     }
     @FXML
     private void UpButtclicked(){
@@ -270,44 +267,57 @@ public class WaterMarkPaneMainController {
     }
 
 
-
-
-// ...
-
-    @FXML
-    private void OnApplyWaterMark() {
-
-        savefiles(bufferedImages);
+    private String removeDoubleExtension(String filename, String selectedFiletype) {
+        int lastIndex = filename.lastIndexOf("." + selectedFiletype);
+        if (lastIndex != -1) {
+            return filename.substring(0, lastIndex);
+        }
+        return filename;
     }
 
     @FXML
-    private void savefiles(ArrayList<Image> bufferedImages) {
-        System.out.println("BufferedImages size :" + bufferedImages.size());
+    private void OnApplyWaterMark() {
         FileChooser fileChooser = new FileChooser();
-        String selectedFiletype=comboFileType.getValue().toLowerCase();
-        //  String selectedFiletype = comboFileType.getSelectionModel().getSelectedItem().toLowerCase();
-        System.out.println("Selected file type :" + selectedFiletype);
-//        fileChooser.getExtensionFilters().add(
-//                new FileChooser.ExtensionFilter( selectedFile,"*."+ selectedFiletype));
+        String selectedFiletype = comboFileType.getValue().toLowerCase();
+
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(selectedFiletype.toUpperCase() + " files", "*." + selectedFiletype)
+        );
+
         File selectedFile = fileChooser.showSaveDialog(new Stage());
-        System.out.println("Selected file:"+selectedFile);
 
-        if (selectedFiletype != null && bufferedImages.size() == 1) {
-            // System.out.println( bufferedImages.size());
+        if (selectedFile != null) {
+            // Remove the double extension if it exists
+            String fileName = selectedFile.getName();
+            fileName = removeDoubleExtension(fileName, selectedFiletype);
 
+            // Now, fileName should have only one extension
+            File newFile = new File(selectedFile.getParent(), fileName);
+            savefiles(bufferedImages, newFile, selectedFiletype);
+
+            System.out.println("Selected file:" + newFile);
+        }
+    }
+
+
+    @FXML
+    private void savefiles(ArrayList<Image> bufferedImages, File selectedFile,
+                           String selectedFiletype) {
+         if( bufferedImages.size() == 1) {
+            save_as_individual(bufferedImages,selectedFile,selectedFiletype);
+         } else if (bufferedImages.size()> 1) {
+            save_as_zip(bufferedImages,selectedFile,selectedFiletype);
+         }
+
+    }
+    @FXML
+        public void save_as_individual(ArrayList<Image> bufferedImages, File selectedFile,  String selectedFiletype){
             Image imgToSave = bufferedImages.get(0);
             BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imgToSave, null);
-
-            BufferedImage bufferedImage1 = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-            Graphics2D graphics2D = bufferedImage1.createGraphics();
-
-            graphics2D.drawImage(bufferedImage, 0, 0, null);
-
-
-
-            String fileName = selectedFile.getName()+ "."+selectedFiletype;
+            BufferedImage bufferedImage1 = bufferAgain(bufferedImage);
+            String fileName = selectedFile.getName()+"."+selectedFiletype;
             File outputFile = new File(selectedFile.getParent(), fileName);
-            //C:\Users\aye29\OneDrive\Pictures\huytt.jpg
+
             try {
                 ImageIO.write(bufferedImage1, selectedFiletype, outputFile);
                 System.out.println("Image saved successfully!" + outputFile);
@@ -315,18 +325,17 @@ public class WaterMarkPaneMainController {
                 e.printStackTrace();
                 System.err.println("Error saving image: " + e.getMessage());
             }
-
-        } else if (selectedFiletype != null && bufferedImages.size()> 1) {
+        }
+        @FXML
+    public void save_as_zip(ArrayList<Image> bufferedImages, File selectedFile,  String selectedFiletype){
             String zipFileName = selectedFile.getAbsolutePath()+".zip";
             try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(zipFileName)))) {
                 for (int i = 0; i < bufferedImages.size(); i++) {
                     Image imgToSave = bufferedImages.get(i);
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imgToSave, null);
-                    BufferedImage bufferedImage1 = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-                    Graphics2D graphics2D = bufferedImage1.createGraphics();
+                    BufferedImage bufferedImage1 = bufferAgain(bufferedImage);
+                    String entryName = selectedFile.getName() + i+"."+selectedFiletype ;
 
-                    graphics2D.drawImage(bufferedImage, 0, 0, null);
-                    String entryName = selectedFile.getName()+i+"."+selectedFiletype;
                     ZipEntry entry = new ZipEntry(entryName);
                     zipOutputStream.putNextEntry(entry);
 
@@ -334,12 +343,18 @@ public class WaterMarkPaneMainController {
                     zipOutputStream.closeEntry();
 
                 }
-
-
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+
+        public BufferedImage bufferAgain(BufferedImage bufferedImage){
+        BufferedImage bufferedImage1 = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = bufferedImage1.createGraphics();
+
+        graphics2D.drawImage(bufferedImage, 0, 0, null);
+
+        return bufferedImage1;
     }
 
 
