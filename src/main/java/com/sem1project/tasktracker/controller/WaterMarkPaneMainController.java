@@ -305,9 +305,12 @@ public class WaterMarkPaneMainController {
                            String selectedFiletype) {
          if( bufferedImages.size() == 1) {
             save_as_individual(bufferedImages,selectedFile,selectedFiletype);
+
          } else if (bufferedImages.size()> 1) {
             save_as_zip(bufferedImages,selectedFile,selectedFiletype);
          }
+        ShowAlert("You have saved your files successfully!", Alert.AlertType.INFORMATION);
+         OnCancelWaterMark();
 
     }
     @FXML
@@ -356,7 +359,14 @@ public class WaterMarkPaneMainController {
 
         return bufferedImage1;
     }
-
+    @FXML
+public void ShowAlert(String s, Alert.AlertType type){
+    Alert alert = new Alert(type);
+    alert.setHeaderText(null);
+    alert.setTitle(type.name());
+    alert.setContentText(s);
+    alert.showAndWait();
+}
 
 @FXML
     public void OnDefaultValue() {
