@@ -160,16 +160,6 @@ public class WaterMarkPaneMainController {
         updateWatermarkPreview();
 
     }
-    @FXML
-    public void leftupCornerClicked() {
-        System.out.println("leftUp was clicked!");
-        watermarkYPosition -=200;
-        watermarkXPosition -= 300;
-        updateWatermarkPreview();
-
-    }
-
-
 
 
 
