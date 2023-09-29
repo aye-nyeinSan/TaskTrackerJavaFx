@@ -122,7 +122,8 @@ public class drawWaterMarkPane {
                             success = true;
                             File file = dragboard.getFiles().get(i);
 
-                            zipArchive(file,inputListView);}
+                            zipArchive(file,inputListView);
+                        }
                      }
 
 

@@ -24,6 +24,7 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -262,6 +263,7 @@ public class WaterMarkPaneMainController {
 @FXML
     public void OnCancelWaterMark(){
         inputImages.clear();
+
        Launcher.getStage().close();
        Launcher.setOtherStagesOpen(false);
 
@@ -296,11 +298,18 @@ public class WaterMarkPaneMainController {
             Image imgToSave = bufferedImages.get(0);
             BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imgToSave, null);
 
+            BufferedImage bufferedImage1 = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics2D = bufferedImage1.createGraphics();
+
+            graphics2D.drawImage(bufferedImage, 0, 0, null);
+
+
+
             String fileName = selectedFile.getName()+ "."+selectedFiletype;
             File outputFile = new File(selectedFile.getParent(), fileName);
             //C:\Users\aye29\OneDrive\Pictures\huytt.jpg
             try {
-                ImageIO.write(bufferedImage, selectedFiletype, outputFile);
+                ImageIO.write(bufferedImage1, selectedFiletype, outputFile);
                 System.out.println("Image saved successfully!" + outputFile);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -313,10 +322,15 @@ public class WaterMarkPaneMainController {
                 for (int i = 0; i < bufferedImages.size(); i++) {
                     Image imgToSave = bufferedImages.get(i);
                     BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imgToSave, null);
+                    BufferedImage bufferedImage1 = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+                    Graphics2D graphics2D = bufferedImage1.createGraphics();
+
+                    graphics2D.drawImage(bufferedImage, 0, 0, null);
                     String entryName = selectedFile.getName()+i+"."+selectedFiletype;
                     ZipEntry entry = new ZipEntry(entryName);
                     zipOutputStream.putNextEntry(entry);
-                    ImageIO.write(bufferedImage, selectedFiletype, zipOutputStream);
+
+                    ImageIO.write(bufferedImage1, selectedFiletype, zipOutputStream);
                     zipOutputStream.closeEntry();
 
                 }
