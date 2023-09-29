@@ -30,7 +30,7 @@ import javax.imageio.ImageIO;
 
 public class ResizeviewController {
     @FXML
-    private ListView<String> listView;
+    private ListView<File> listView;
     @FXML
     private ComboBox<String> comboFun;
     @FXML
@@ -42,7 +42,7 @@ public class ResizeviewController {
     @FXML
     private ImageView imgPreview;
 
-    public void setSelectedFiles(List<String> selectedFiles) {
+    public void setSelectedFiles(List<File> selectedFiles) {
         if (listView != null && selectedFiles != null && !selectedFiles.isEmpty()) {
             listView.getItems().addAll(selectedFiles);
         }
@@ -67,8 +67,8 @@ public class ResizeviewController {
 
 
     public void resize(ActionEvent event) {
-        List<String> listViewItems = new ArrayList<>();
-        for (String item : listView.getItems()) {
+        List<File> listViewItems = new ArrayList<>();
+        for (File item : listView.getItems()) {
             listViewItems.add(item);
         }
         String selectedDir = comboFun.getValue();
@@ -76,8 +76,8 @@ public class ResizeviewController {
         int sizeInt = Integer.parseInt(widthStr);
         if (!widthStr.isEmpty() && !listViewItems.isEmpty()) {
              try {
-             for(String selectedFile:listViewItems){
-             File inputFile=new File(selectedFile);
+             for(File selectedFile:listViewItems){
+             File inputFile=new File(String.valueOf(selectedFile));
              BufferedImage image=Imaging.getBufferedImage(inputFile);
                  System.out.println(image.getWidth());
                  System.out.println(image.getHeight());
