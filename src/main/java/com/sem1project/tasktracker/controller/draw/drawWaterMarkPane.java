@@ -63,7 +63,6 @@ public class drawWaterMarkPane {
 
                     if (db.hasFiles() && fileName.endsWith(".png")
                             ||fileName.toLowerCase().endsWith(".jpg")
-                            ||fileName.toLowerCase().endsWith(".jpeg")
                             || fileName.toLowerCase().endsWith(".zip")) {
                        isAccepted = true;
                        if(isAccepted){
@@ -114,8 +113,7 @@ public class drawWaterMarkPane {
                      for (int i = 0 ;i<files.size();i++)  {
                         if(dragboard.hasFiles()&&
                                 ( dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".png")
-                                        ||dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".jpg")
-                                        ||dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".jpeg"))){
+                                        ||dragboard.getFiles().get(i).getName().toLowerCase().endsWith(".jpg"))){
                             success = true;
                             File file = dragboard.getFiles().get(i);
                             inputListView.getItems().add(file);
@@ -142,7 +140,7 @@ public class drawWaterMarkPane {
                 while ((entry = zipInput.getNextZipEntry()) != null) {
                     if (!entry.isDirectory()) {
                         String entryName = entry.getName();
-                        if(entryName.endsWith(".jpg") || entryName.endsWith(".png")|| entryName.endsWith(".jpeg")){
+                        if(entryName.endsWith(".jpg") || entryName.endsWith(".png")){
                             byte[] buffer = new byte[1024];
                             int bytesRead;
                             File extractedFile = new File("path_to_extracted_files", entryName);

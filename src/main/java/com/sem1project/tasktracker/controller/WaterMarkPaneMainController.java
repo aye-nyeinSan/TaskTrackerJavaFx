@@ -20,10 +20,15 @@ import javafx.scene.text.FontWeight;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -45,6 +50,7 @@ public class WaterMarkPaneMainController {
     @FXML private ComboBox<String> comboFileType;
 
     @FXML private ArrayList<Image> inputImages= new ArrayList<>();
+    private ArrayList<Image> bufferedImages= new ArrayList<>();
     private int currentImageIndex = -1;
     private static int watermarkYPosition = 0;
     private static int watermarkXPosition = 0;
@@ -52,6 +58,9 @@ public class WaterMarkPaneMainController {
     public void initialize(){
 
         combotypeAddition();
+        colorPicker.valueProperty().addListener(action->{
+            this.updateWatermarkPreview();
+        });
 
             //Bind Label and Slider
         visibility.setText("0%");
@@ -95,9 +104,9 @@ public class WaterMarkPaneMainController {
     }
 
     private void combotypeAddition() {
-        comboFileType.getItems().removeAll();
-        comboFileType.getItems().addAll( "JPG","PNG", "JPEG");
-        comboFileType.getSelectionModel().select("JPG");
+//        comboFileType.getItems().removeAll();
+        comboFileType.getItems().addAll( "JPEG","PNG");
+        comboFileType.getSelectionModel().select("JPEG");
     }
     @FXML
     private void UpButtclicked(){
@@ -178,7 +187,8 @@ public class WaterMarkPaneMainController {
                 Image watermarkedImage = addWatermark(img, waterMarkText, newColor, newSize,visibility, rotation);
                 watermarkedImages.add(watermarkedImage);
             }
-
+            bufferedImages.clear();
+            bufferedImages.addAll(watermarkedImages);
             this.ImgPreview.setImage(null);
             this.ImgPreview.setImage(watermarkedImages.get(currentImageIndex));
 
@@ -264,33 +274,56 @@ public class WaterMarkPaneMainController {
 
     @FXML
     private void OnApplyWaterMark() {
+
+        savefiles(bufferedImages);
+    }
+
+    @FXML
+    private void savefiles(ArrayList<Image> bufferedImages) {
+        System.out.println("BufferedImages size :" + bufferedImages.size());
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png", "*.jpeg"));
-        fileChooser.setTitle("Save Image");
+        String selectedFiletype=comboFileType.getValue().toLowerCase();
+        //  String selectedFiletype = comboFileType.getSelectionModel().getSelectedItem().toLowerCase();
+        System.out.println("Selected file type :" + selectedFiletype);
+//        fileChooser.getExtensionFilters().add(
+//                new FileChooser.ExtensionFilter( selectedFile,"*."+ selectedFiletype));
+        File selectedFile = fileChooser.showSaveDialog(new Stage());
+        System.out.println("Selected file:"+selectedFile);
 
-        // Show the file save dialog and get the selected file
-        File file = fileChooser.showSaveDialog(new Stage());
+        if (selectedFiletype != null && bufferedImages.size() == 1) {
+            // System.out.println( bufferedImages.size());
 
-        if (file != null) {
-            // Ensure the selected file has the appropriate extension
-            String selectedExtension = comboFileType.getSelectionModel().getSelectedItem();
-            if (!file.getName().toLowerCase().endsWith("." + selectedExtension.toLowerCase())) {
-                file = new File(file.getName(),  "." + selectedExtension.toLowerCase());
+            Image imgToSave = bufferedImages.get(0);
+            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imgToSave, null);
+
+            String fileName = selectedFile.getName()+ "."+selectedFiletype;
+            File outputFile = new File(selectedFile.getParent(), fileName);
+            //C:\Users\aye29\OneDrive\Pictures\huytt.jpg
+            try {
+                ImageIO.write(bufferedImage, selectedFiletype, outputFile);
+                System.out.println("Image saved successfully!" + outputFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("Error saving image: " + e.getMessage());
             }
 
-            // Now you can save your image to the selected file using FileOutputStream
-            try {
-                Image imageToSave = ImgPreview.getImage(); // Get the image from ImgPreview
-                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imageToSave, null);
-                ImageIO.write(bufferedImage, selectedExtension.toLowerCase(), file);
+        } else if (selectedFiletype != null && bufferedImages.size()> 1) {
+            String zipFileName = selectedFile.getAbsolutePath()+".zip";
+            try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(zipFileName)))) {
+                for (int i = 0; i < bufferedImages.size(); i++) {
+                    Image imgToSave = bufferedImages.get(i);
+                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(imgToSave, null);
+                    String entryName = selectedFile.getName()+i+"."+selectedFiletype;
+                    ZipEntry entry = new ZipEntry(entryName);
+                    zipOutputStream.putNextEntry(entry);
+                    ImageIO.write(bufferedImage, selectedFiletype, zipOutputStream);
+                    zipOutputStream.closeEntry();
 
-                // Optionally, you can show a success message to the user
-                System.out.println("File saved successfully: " + file.getAbsolutePath());
+                }
+
+
             } catch (IOException e) {
-                // Handle any IOException that may occur
-                e.printStackTrace();
-                // Optionally, show an error message to the user
-                System.err.println("Error saving the file.");
+                throw new RuntimeException(e);
             }
         }
     }
@@ -302,51 +335,6 @@ public class WaterMarkPaneMainController {
         this.sizeSlider.setValue(100);
         this.rotationSlider.setValue(0);
     }
-
-
-//    private void saveToDirectory(List<BufferedImage> resizedImages) throws FileNotFoundException {
-//        String fileType = comboFile.getValue();
-//        FileChooser fileChooser=new FileChooser();
-//        fileChooser.setTitle("Save Resized Images");
-//        Stage stage=(Stage) anchorId.getScene().getWindow();
-//        File selectedDirectory=fileChooser.showSaveDialog(stage);
-//
-//        if(selectedDirectory!=null) {
-//            try {
-//                if (resizedImages.size() == 1) {
-//                    BufferedImage image = resizedImages.get(0);
-//                    String fileName = selectedDirectory.getName()+"."+fileType;
-//                    File outputFile = new File(selectedDirectory.getParent(),fileName);
-//                    ImageIO.write(image, fileType, outputFile);
-//                } else if (resizedImages.size() > 1) {
-//                    String zipFileName = selectedDirectory.getAbsolutePath()+".zip";
-//                    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(zipFileName)))) {
-//                        int i = 1;
-//                        for (BufferedImage image : resizedImages) {
-//                            String entryName = selectedDirectory.getName() + i + "." + fileType;
-//                            ZipEntry entry = new ZipEntry(entryName);
-//                            zipOutputStream.putNextEntry(entry);
-//                            ImageIO.write(image, fileType, zipOutputStream);
-//                            zipOutputStream.closeEntry();
-//                            i++;
-//                        }
-//                    }
-//                }
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//            catch (IOException e){
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
-
-
-
-
-
-
 
 
 }
