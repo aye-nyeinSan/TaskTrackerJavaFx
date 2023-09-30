@@ -33,7 +33,7 @@ public class Launcher extends Application {
         FXMLLoader fxmlLoader =new FXMLLoader(Launcher.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 500);
         this.stage.setTitle("JavaFx 1st Semester Project!");
-        this.stage.getIcons().add(new Image(Launcher.class.getResource("assets/1stsemesterIcon.jpg").toString()));
+        this.stage.getIcons().add(new Image(Launcher.class.getResource("assets/appIcon.png").toString()));
         this.stage.setResizable(false);
         this.stage.setScene(scene);
         this.stage.show();
