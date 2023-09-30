@@ -3,6 +3,7 @@ package com.sem1project.tasktracker.controller;
 import com.sem1project.tasktracker.Launcher;
 
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringExpression;
@@ -24,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -178,20 +180,41 @@ public class WaterMarkPaneMainController {
         double rotation = this.rotationSlider.getValue();
         System.out.println("Color:" + newColor + " Size:" + newSize + " waterMarkText:" + waterMarkText + " Visibility:" + visibility + " rotation:" + rotation);
 
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        ExecutorCompletionService<Image> completionService = new ExecutorCompletionService<>(executorService);
+        try {
+            if (waterMarkText != null && !(this.inputImages.isEmpty())) {
+                List<Future<Image>> watermarkedImages = new ArrayList();
+                for (Image img : inputImages) {
+                    Future<Image> future = completionService.submit(() -> {
+                        return addWatermark(img, waterMarkText, newColor, newSize, visibility, rotation);
+                    });
 
-        if (waterMarkText != null && !(this.inputImages.isEmpty())) {
-            List<Image> watermarkedImages = new ArrayList();
-            for (Image img:inputImages) {
-                Image watermarkedImage = addWatermark(img, waterMarkText, newColor, newSize,visibility, rotation);
-                watermarkedImages.add(watermarkedImage);
+                    watermarkedImages.add(future);
+                }
+
+                bufferedImages.clear();
+                for (Future<Image> future : watermarkedImages) {
+                    try {
+                        Image watermarkedImage = future.get();
+                        bufferedImages.add(watermarkedImage);
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                this.ImgPreview.setImage(null);
+                this.ImgPreview.setImage(bufferedImages.get(currentImageIndex));
             }
-            bufferedImages.clear();
-            bufferedImages.addAll(watermarkedImages);
-            this.ImgPreview.setImage(null);
-            this.ImgPreview.setImage(watermarkedImages.get(currentImageIndex));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }finally{
+            executorService.shutdown();
+        }
+
 
         }
-    }
+
 
     private static <graphics> Image addWatermark(Image image, String watermarkText, Color newColor, int newSize, double visibility, double rotation) {
         String text = watermarkText;
@@ -285,32 +308,48 @@ public class WaterMarkPaneMainController {
         );
 
         File selectedFile = fileChooser.showSaveDialog(new Stage());
+        // Remove the double extension if it exists
+        String fileName = selectedFile.getName();
+        fileName = removeDoubleExtension(fileName, selectedFiletype);
+        // Now, fileName should have only one extension
+        File newFile = new File(selectedFile.getParent(), fileName);
+        Thread applyWatermarkThread = new Thread(() -> {
+             savefiles(bufferedImages, newFile, selectedFiletype);
+        });
 
-        if (selectedFile != null) {
-            // Remove the double extension if it exists
-            String fileName = selectedFile.getName();
-            fileName = removeDoubleExtension(fileName, selectedFiletype);
+        applyWatermarkThread.setDaemon(true); // Set the thread as a daemon to exit when the application exits
+        applyWatermarkThread.start();
 
-            // Now, fileName should have only one extension
-            File newFile = new File(selectedFile.getParent(), fileName);
-            savefiles(bufferedImages, newFile, selectedFiletype);
 
-            System.out.println("Selected file:" + newFile);
         }
-    }
+
 
 
     @FXML
     private void savefiles(ArrayList<Image> bufferedImages, File selectedFile,
                            String selectedFiletype) {
-         if( bufferedImages.size() == 1) {
-            save_as_individual(bufferedImages,selectedFile,selectedFiletype);
 
-         } else if (bufferedImages.size()> 1) {
-            save_as_zip(bufferedImages,selectedFile,selectedFiletype);
-         }
-        ShowAlert("You have saved your files successfully!", Alert.AlertType.INFORMATION);
-         OnCancelWaterMark();
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        try{
+
+            if( bufferedImages.size() == 1) {
+                save_as_individual(bufferedImages,selectedFile,selectedFiletype);
+
+            } else if (bufferedImages.size()> 1) {
+                save_as_zip(bufferedImages,selectedFile,selectedFiletype);
+            }
+            Platform.runLater(() -> {
+                ShowAlert("You have saved your files successfully!", Alert.AlertType.INFORMATION);
+                OnCancelWaterMark();
+            });
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }finally {
+            executorService.shutdown();
+
+        }
 
     }
     @FXML
