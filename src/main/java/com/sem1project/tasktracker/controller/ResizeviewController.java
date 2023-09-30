@@ -1,5 +1,6 @@
 package com.sem1project.tasktracker.controller;
 
+import com.sem1project.tasktracker.controller.exception.CustomExceptionHandler;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -42,6 +43,8 @@ public class ResizeviewController {
     @FXML
     private TextField widthValue;
 
+    private CustomExceptionHandler cshandle=new CustomExceptionHandler();
+
     //    @FXML
 //    private ImageView imgPreview;
     @FXML
@@ -80,10 +83,12 @@ public class ResizeviewController {
         //choosing resize functions
         ObservableList<String> functions = FXCollections.observableArrayList("Percentage", "Width", "Height");
         comboFun.setItems(functions);
+        comboFun.getSelectionModel().select("Percentage");
 
         //choosing image file types
         ObservableList<String> fileTypes = FXCollections.observableArrayList("JPEG", "PNG");
         comboFile.setItems(fileTypes);
+        comboFile.getSelectionModel().select("JPEG");
 
         deleteAll.setOnAction(e -> {
             listView.getItems().removeAll(listView.getItems());
@@ -93,13 +98,28 @@ public class ResizeviewController {
 
 
     public void resize(ActionEvent event) {
+        String widthStr = widthValue.getText();
         List<File> listViewItems = new ArrayList<>();
         for (File item : listView.getItems()) {
             listViewItems.add(item);
         }
+
+        if (widthStr.isEmpty() && listViewItems.isEmpty()) {
+            cshandle.showAlert("Both width and image list are empty.", Alert.AlertType.ERROR);
+            return; // Exit the method early
+        }
+        else if(widthStr.isEmpty()){
+            cshandle.showAlert("image size is empty.", Alert.AlertType.ERROR);
+            return;
+        }
+        else if(listViewItems.isEmpty()){
+            cshandle.showAlert("Image lists are empty",Alert.AlertType.ERROR);
+        }
         String selectedDir = comboFun.getValue();
-        String widthStr = widthValue.getText();
+
         int sizeInt = Integer.parseInt(widthStr);
+
+
         if (!widthStr.isEmpty() && !listViewItems.isEmpty()) {
             // ArrayList for resized images
             List<BufferedImage> resizedImages = new ArrayList<>();
