@@ -1,5 +1,6 @@
 package com.sem1project.tasktracker;
 
+import com.sem1project.tasktracker.controller.exception.CustomExceptionHandler;
 import javafx.application.Application;
 
 import javafx.fxml.FXMLLoader;
@@ -17,6 +18,7 @@ public class Launcher extends Application {
 
     public static Stage stage;
     private static boolean otherStageOpen = false;
+    private CustomExceptionHandler watermarkException = new CustomExceptionHandler();
 
 
 
@@ -40,11 +42,7 @@ public class Launcher extends Application {
 
             if(otherStageOpen){
                 action.consume();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText(null);
-                alert.setContentText("You have to cancel or close your current work to close our app.");
-                alert.showAndWait();
-                this.stage.toBack();
+                watermarkException.showAlert("You have to cancel or close your current work to close our app.", Alert.AlertType.ERROR);
             }
         });
 

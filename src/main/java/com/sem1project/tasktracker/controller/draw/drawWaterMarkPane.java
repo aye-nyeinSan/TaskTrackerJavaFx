@@ -5,6 +5,7 @@ import com.sem1project.tasktracker.Launcher;
 import com.sem1project.tasktracker.controller.ResizeviewController;
 
 import com.sem1project.tasktracker.controller.WaterMarkPaneMainController;
+import com.sem1project.tasktracker.controller.exception.CustomExceptionHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -28,11 +29,13 @@ public class drawWaterMarkPane {
 
 
     FXMLLoader loader;
-    @FXML Button deleteBtn;
+
 
     @FXML
     private ListView<File> inputListView;
     @FXML Button resizebtn;
+    private CustomExceptionHandler waterMarkException = new CustomExceptionHandler();
+
 
 
 
@@ -97,11 +100,7 @@ public class drawWaterMarkPane {
                 }
             }
             else {
-                Alert alert=new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Empty");
-                alert.setHeaderText("Empty List");
-                alert.setContentText("Please add files to the list before clicking this button.");
-                alert.showAndWait();
+                waterMarkException.showAlert("Please add files to the list before clicking this button.", Alert.AlertType.ERROR);
             }
         });
    //checking the target items are acceptable or not

@@ -3,6 +3,7 @@ package com.sem1project.tasktracker.controller;
 import com.sem1project.tasktracker.Launcher;
 
 
+import com.sem1project.tasktracker.controller.exception.CustomExceptionHandler;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
@@ -54,6 +55,7 @@ public class WaterMarkPaneMainController {
     private int currentImageIndex = -1;
     private static int watermarkYPosition = 0;
     private static int watermarkXPosition = 0;
+   private CustomExceptionHandler watermarkException = new CustomExceptionHandler();
 
     public void initialize(){
 
@@ -300,26 +302,29 @@ public class WaterMarkPaneMainController {
 
     @FXML
     private void OnApplyWaterMark() {
-        FileChooser fileChooser = new FileChooser();
-        String selectedFiletype = comboFileType.getValue().toLowerCase();
+        if (watermarkText.getText().isEmpty()){
+            this.watermarkException.showAlert("There is no text you want to watermark your photo", Alert.AlertType.ERROR);
+        }else if(watermarkText.getText()!= null && comboFileType.getValue()!= null){
+            FileChooser fileChooser = new FileChooser();
+            String selectedFiletype = comboFileType.getValue().toLowerCase();
 
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(selectedFiletype.toUpperCase() + " files", "*." + selectedFiletype)
-        );
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter(selectedFiletype.toUpperCase() + " files", "*." + selectedFiletype)
+            );
 
-        File selectedFile = fileChooser.showSaveDialog(new Stage());
-        // Remove the double extension if it exists
-        String fileName = selectedFile.getName();
-        fileName = removeDoubleExtension(fileName, selectedFiletype);
-        // Now, fileName should have only one extension
-        File newFile = new File(selectedFile.getParent(), fileName);
-        Thread applyWatermarkThread = new Thread(() -> {
-             savefiles(bufferedImages, newFile, selectedFiletype);
-        });
+            File selectedFile = fileChooser.showSaveDialog(new Stage());
+            // Remove the double extension if it exists
+            String fileName = selectedFile.getName();
+            fileName = removeDoubleExtension(fileName, selectedFiletype);
+            // Now, fileName should have only one extension
+            File newFile = new File(selectedFile.getParent(), fileName);
+            Thread applyWatermarkThread = new Thread(() -> {
+                savefiles(bufferedImages, newFile, selectedFiletype);
+            });
 
-        applyWatermarkThread.setDaemon(true); // Set the thread as a daemon to exit when the application exits
-        applyWatermarkThread.start();
-
+            applyWatermarkThread.setDaemon(true); // Set the thread as a daemon to exit when the application exits
+            applyWatermarkThread.start();
+        }
 
         }
 
@@ -339,13 +344,13 @@ public class WaterMarkPaneMainController {
                 save_as_zip(bufferedImages,selectedFile,selectedFiletype);
             }
             Platform.runLater(() -> {
-                ShowAlert("You have saved your files successfully!", Alert.AlertType.INFORMATION);
+                watermarkException.showAlert("You have saved your files successfully!", Alert.AlertType.INFORMATION);
                 OnCancelWaterMark();
             });
 
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception  e) {
+            e.printStackTrace();
         }finally {
             executorService.shutdown();
 
@@ -398,14 +403,8 @@ public class WaterMarkPaneMainController {
 
         return bufferedImage1;
     }
-    @FXML
-public void ShowAlert(String s, Alert.AlertType type){
-    Alert alert = new Alert(type);
-    alert.setHeaderText(null);
-    alert.setTitle(type.name());
-    alert.setContentText(s);
-    alert.showAndWait();
-}
+
+
 
 @FXML
     public void OnDefaultValue() {
