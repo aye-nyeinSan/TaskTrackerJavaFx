@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.awt.image.BufferedImage;
+import java.util.concurrent.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -33,7 +34,7 @@ public class ResizeviewController {
     @FXML
     private ListView<File> listView;
     @FXML
-    private ComboBox<String> comboFun,comboFile;
+    private ComboBox<String> comboFun, comboFile;
     @FXML
     private Button deleteAll;
     @FXML
@@ -41,7 +42,7 @@ public class ResizeviewController {
     @FXML
     private TextField widthValue;
 
-//    @FXML
+    //    @FXML
 //    private ImageView imgPreview;
     @FXML
     private AnchorPane anchorId;
@@ -63,7 +64,6 @@ public class ResizeviewController {
     }
 
 
-
     public void initialize() {
         listView.setCellFactory(param -> new ListCell<>() { //Custom Cell in ListView
             @Override
@@ -82,7 +82,7 @@ public class ResizeviewController {
         comboFun.setItems(functions);
 
         //choosing image file types
-        ObservableList<String> fileTypes= FXCollections.observableArrayList("JPEG","PNG");
+        ObservableList<String> fileTypes = FXCollections.observableArrayList("JPEG", "PNG");
         comboFile.setItems(fileTypes);
 
         deleteAll.setOnAction(e -> {
@@ -101,113 +101,117 @@ public class ResizeviewController {
         String widthStr = widthValue.getText();
         int sizeInt = Integer.parseInt(widthStr);
         if (!widthStr.isEmpty() && !listViewItems.isEmpty()) {
-            //Arraylist for resized images
-            List<BufferedImage> resizedImages=new ArrayList<>();
-             try {
-             for(File selectedFile:listViewItems){
+            // ArrayList for resized images
+            List<BufferedImage> resizedImages = new ArrayList<>();
 
+            // Create an ExecutorService with a fixed number of threads (e.g., 4)
+            ExecutorService executorService = Executors.newFixedThreadPool(4);
+            CompletionService<BufferedImage> completionService = new ExecutorCompletionService<>(executorService);
 
+            try {
+                for (File selectedFile : listViewItems) {
+                    completionService.submit(() -> {
+                        File inputFile = new File(selectedFile.getAbsolutePath());
+                        BufferedImage image = Imaging.getBufferedImage(inputFile);
+                        BufferedImage resizedImage;
 
-             File inputFile=new File(selectedFile.getAbsolutePath());
+                        if (selectedDir.equals("Percentage")) {
+                            // Resize by percentage
+                            double scaleFactor = sizeInt / 100.0;
+                            int newWidth = (int) (image.getWidth() * scaleFactor);
+                            int newHeight = (int) (image.getHeight() * scaleFactor);
+                            resizedImage = resizeImage(image, newWidth, newHeight);
+                        } else if (selectedDir.equals("Width")) {
+                            int newWidth = sizeInt;
+                            int newHeight = (int) ((double) sizeInt / image.getWidth() * image.getHeight());
+                            resizedImage = resizeImage(image, newWidth, newHeight);
+                        } else if (selectedDir.equals("Height")) {
+                            int newHeight = sizeInt;
+                            int newWidth = (int) ((double) sizeInt / image.getHeight() * image.getWidth());
+                            resizedImage = resizeImage(image, newWidth, newHeight);
+                        } else {
+                            return null;
+                        }
+                        return resizedImage;
+                    });
+                }
 
-             BufferedImage image=Imaging.getBufferedImage(inputFile);
-             BufferedImage resizedImage;
+                for (int i = 0; i < listViewItems.size(); i++) {
+                    try {
+                        BufferedImage resizedImage = completionService.take().get();
+                        if (resizedImage != null) {
+                            resizedImages.add(resizedImage);
+                        }
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-             if(selectedDir=="Percentage"){
-             //resize by percentage
-             double scaleFactor=sizeInt/100.0;
-             int newWidth=(int)(image.getWidth()*scaleFactor);
-             int newHeight=(int)(image.getHeight()*scaleFactor);
-             resizedImage=resizeImage(image,newWidth,newHeight);
-             }
-             else if (selectedDir=="Width") {
-             int newWidth=sizeInt;
-//             int newHeight=(int)image.getHeight();
-            int newHeight = (int) ((double) sizeInt / image.getWidth() * image.getHeight());
-             resizedImage=resizeImage(image,newWidth,newHeight);
-
-
-             } else if (selectedDir=="Height") {
-             int newHeight=sizeInt;
-//             int newWidth=(int)image.getWidth();
-               int newWidth = (int) ((double) sizeInt / image.getHeight() * image.getWidth());
-             resizedImage=resizeImage(image,newWidth,newHeight);
-             }
-             else{
-             continue;
-             }
-             resizedImages.add(resizedImage);
-//             Image fxImage=SwingFXUtils.toFXImage(resizedImage,null);
-//             imgPreview.setImage(fxImage);
-             }
-             saveToDirectory(resizedImages);
-             } catch (IOException e) {
-             e.printStackTrace();
-             } catch (ImageReadException e) {
-              e.printStackTrace();
-             }
-
+                saveToDirectory(resizedImages);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                executorService.shutdown();
+            }
         }
     }
-
     private void saveToDirectory(List<BufferedImage> resizedImages) throws FileNotFoundException {
         String fileType = comboFile.getValue();
-        FileChooser fileChooser=new FileChooser();
+        FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Resized Images");
-        Stage stage=(Stage) anchorId.getScene().getWindow();
-       File selectedDirectory=fileChooser.showSaveDialog(stage);
+        Stage stage = (Stage) anchorId.getScene().getWindow();
+        File selectedDirectory = fileChooser.showSaveDialog(stage);
 
-       if(selectedDirectory!=null) {
-           try {
-           if (resizedImages.size() == 1) {
-               BufferedImage image = resizedImages.get(0);
-               String fileName = selectedDirectory.getName()+"."+fileType;
+        if (selectedDirectory != null) {
+            try {
+                if (resizedImages.size() == 1) {
+                    BufferedImage image = resizedImages.get(0);
+                    String fileName = selectedDirectory.getName() + "." + fileType;
 //               String fileName=selectedDirectory.getName();
-               File outputFile = new File(selectedDirectory.getParent(),fileName);
-               ImageIO.write(image, fileType, outputFile);
-           } else if (resizedImages.size() > 1) {
-               String zipFileName = selectedDirectory.getAbsolutePath()+".zip";
-               try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(zipFileName)))) {
-                   int i = 1;
-                   for (BufferedImage image : resizedImages) {
-                       String entryName = selectedDirectory.getName() + i + "." + fileType;
-                       ZipEntry entry = new ZipEntry(entryName);
-                       zipOutputStream.putNextEntry(entry);
-                       ImageIO.write(image, fileType, zipOutputStream);
-                       zipOutputStream.closeEntry();
-                       i++;
-                   }
-               }
-           }
-       } catch (FileNotFoundException e) {
-                   e.printStackTrace();
-               }
-           catch (IOException e){
-               e.printStackTrace();
-           }
-           }
-       }
+                    File outputFile = new File(selectedDirectory.getParent(), fileName);
+                    ImageIO.write(image, fileType, outputFile);
+                } else if (resizedImages.size() > 1) {
+                    String zipFileName = selectedDirectory.getAbsolutePath() + ".zip";
+                    try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(new File(zipFileName)))) {
+                        int i = 1;
+                        for (BufferedImage image : resizedImages) {
+                            String entryName = selectedDirectory.getName() + i + "." + fileType;
+                            ZipEntry entry = new ZipEntry(entryName);
+                            zipOutputStream.putNextEntry(entry);
+                            ImageIO.write(image, fileType, zipOutputStream);
+                            zipOutputStream.closeEntry();
+                            i++;
+                        }
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
 //        fileChooser.get
 
-    private BufferedImage resizeImage(BufferedImage originalImage,int newWidth,int newHeight){
-            BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
-            resizedImage.createGraphics().drawImage(originalImage.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
-            return resizedImage;
-        }
+    private BufferedImage resizeImage(BufferedImage originalImage, int newWidth, int newHeight) {
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+        resizedImage.createGraphics().drawImage(originalImage.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+        return resizedImage;
+    }
 
     public void browse(ActionEvent event) {
-          FileChooser fileChooser=new FileChooser();
+        FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Image Files", "*.jpg", "*.png")
         );
-                  Stage stage=(Stage) anchorId.getScene().getWindow();
-                  File selectedFile=fileChooser.showOpenDialog(stage);
+        Stage stage = (Stage) anchorId.getScene().getWindow();
+        File selectedFile = fileChooser.showOpenDialog(stage);
 
-                  if(selectedFile!=null){
-                      listView.getItems().add(selectedFile);
-                  }
+        if (selectedFile != null) {
+            listView.getItems().add(selectedFile);
+        }
 
     }
 
