@@ -21,7 +21,7 @@
          <children>
             <ListView fx:id="listView" layoutX="7.0" layoutY="13.0" prefHeight="200.0" prefWidth="200.0" />
             <ComboBox fx:id="comboFun" layoutX="322.0" layoutY="13.0" onAction="#select" prefWidth="150.0" />
-            <Button fx:id="submit" layoutX="323.0" layoutY="246.0" mnemonicParsing="false" onAction="#resize" text="Resize" />
+            <Button fx:id="submit" layoutX="323.0" layoutY="246.0" mnemonicParsing="false" onAction="#resize" style="-fx-background-color: pink;" text="Resize" />
             <Label fx:id="label" layoutX="236.0" layoutY="52.0" />
             <TextField fx:id="widthValue" layoutX="323.0" layoutY="48.0" />
             <Button fx:id="deleteAll" layoutX="107.0" layoutY="221.0" mnemonicParsing="false" text="Delete All" />
