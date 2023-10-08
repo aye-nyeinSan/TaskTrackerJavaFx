@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.ComboBox?>
@@ -141,5 +142,6 @@
                </image>
             </ImageView>
          </graphic></Button>
+      <Accordion />
    </children>
 </AnchorPane>

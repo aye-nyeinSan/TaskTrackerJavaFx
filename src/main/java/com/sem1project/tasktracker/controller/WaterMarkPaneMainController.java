@@ -25,7 +25,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -55,7 +57,11 @@ public class WaterMarkPaneMainController {
     private int currentImageIndex = -1;
     private static int watermarkYPosition = 0;
     private static int watermarkXPosition = 0;
-   private CustomExceptionHandler watermarkException = new CustomExceptionHandler();
+
+
+    private CustomExceptionHandler watermarkException = new CustomExceptionHandler();
+    private Map<Image, Integer> imageWatermarkSizeMap = new HashMap<>();
+
 
     public void initialize(){
 
@@ -73,7 +79,7 @@ public class WaterMarkPaneMainController {
         rotationSlider.setMax(180);
 
        DoubleBinding binding = visibilitySlider.valueProperty().divide(100).multiply(100);
-        DoubleBinding sizebinding = sizeSlider.valueProperty().divide(1500).multiply(100);
+       DoubleBinding sizebinding = sizeSlider.valueProperty().divide(1500).multiply(100);
         // Create a custom binding for rotation as a StringExpression
         StringExpression rotationBinding = Bindings.concat(
                 Bindings.when(rotationSlider.valueProperty().lessThan(0))
@@ -82,7 +88,7 @@ public class WaterMarkPaneMainController {
         );
         rotation.textProperty().bind(rotationBinding);
         bindValueToSlider(binding,visibilitySlider,visibility,"%%");
-        bindValueToSlider(sizebinding,sizeSlider,sizeLbl,"%%");
+       bindValueToSlider(sizebinding,sizeSlider,sizeLbl,"%%");
 
         visibilitySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             this.updateWatermarkPreview();
@@ -93,7 +99,6 @@ public class WaterMarkPaneMainController {
             this.updateWatermarkPreview();
         });
         sizeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-
             this.updateWatermarkPreview();
         });
 
@@ -173,23 +178,31 @@ public class WaterMarkPaneMainController {
     }
 
     @FXML
-   private void updateWatermarkPreview() {
+    private void updateWatermarkPreview() {
         Color newColor = this.colorPicker.getValue();
-        int newSize = (int) this.sizeSlider.getValue();
         String waterMarkText = this.watermarkText.getText();
-
         double visibility = this.visibilitySlider.getValue();
         double rotation = this.rotationSlider.getValue();
-        System.out.println("Color:" + newColor + " Size:" + newSize + " waterMarkText:" + waterMarkText + " Visibility:" + visibility + " rotation:" + rotation);
+        double newSize = sizeSlider.getValue();
+            System.out.println(newSize);
+        // Update the imageWatermarkSizeMap for all images with the new size
+        for (Image img : inputImages) {
+            imageWatermarkSizeMap.put(img, (int) newSize);
+        }
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         ExecutorCompletionService<Image> completionService = new ExecutorCompletionService<>(executorService);
+
         try {
             if (waterMarkText != null && !(this.inputImages.isEmpty())) {
-                List<Future<Image>> watermarkedImages = new ArrayList();
+                List<Future<Image>> watermarkedImages = new ArrayList<>();
                 for (Image img : inputImages) {
+                    int watermarkSize = imageWatermarkSizeMap.get(img); // Get the watermark size from the map
+
+                    System.out.println("Color:" + newColor + " Size:" + watermarkSize + " waterMarkText:" + waterMarkText + " Visibility:" + visibility + " rotation:" + rotation);
+
                     Future<Image> future = completionService.submit(() -> {
-                        return addWatermark(img, waterMarkText, newColor, newSize, visibility, rotation);
+                        return addWatermark(img, waterMarkText, newColor, watermarkSize, visibility, rotation);
                     });
 
                     watermarkedImages.add(future);
@@ -210,31 +223,77 @@ public class WaterMarkPaneMainController {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }finally{
+        } finally {
             executorService.shutdown();
         }
+    }
+
+//    @FXML
+//   private void updateWatermarkPreview() {
+//        Color newColor = this.colorPicker.getValue();
+//       // watermarkSize = (int) sizeSlider.getValue();
+//        String waterMarkText = this.watermarkText.getText();
+//
+//        double visibility = this.visibilitySlider.getValue();
+//        double rotation = this.rotationSlider.getValue();
+//
+//        ExecutorService executorService = Executors.newFixedThreadPool(4);
+//        ExecutorCompletionService<Image> completionService = new ExecutorCompletionService<>(executorService);
+//        try {
+//            if (waterMarkText != null && !(this.inputImages.isEmpty())) {
+//                 List<Future<Image>> watermarkedImages = new ArrayList();
+//                for (Image img : inputImages) {
+//                    // Get the watermark size from the map
+//                    int watermarkSize = imageWatermarkSizeMap.getOrDefault(img, (int) sizeSlider.getValue());
+//                    System.out.println("Color:" + newColor + " Size:" + watermarkSize + " waterMarkText:" + waterMarkText + " Visibility:" + visibility + " rotation:" + rotation);
+//
+//                    Future<Image> future = completionService.submit(() -> {
+//                        return addWatermark(img, waterMarkText, newColor, watermarkSize, visibility, rotation);
+//                    });
+//
+//                    watermarkedImages.add(future);
+//                }
+//
+//                bufferedImages.clear();
+//                for (Future<Image> future : watermarkedImages) {
+//                    try {
+//                        Image watermarkedImage = future.get();
+//                        bufferedImages.add(watermarkedImage);
+//                    } catch (InterruptedException | ExecutionException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//
+//                this.ImgPreview.setImage(null);
+//                this.ImgPreview.setImage(bufferedImages.get(currentImageIndex));
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }finally{
+//            executorService.shutdown();
+//        }
+//
+//
+//        }
 
 
-        }
-
-
-    private static <graphics> Image addWatermark(Image image, String watermarkText, Color newColor, int newSize, double visibility, double rotation) {
+    private static <graphics> Image addWatermark(Image image, String watermarkText, Color newColor,double newSize, double visibility, double rotation) {
         String text = watermarkText;
         BufferedImage originalImage = SwingFXUtils.fromFXImage(image, null);
 
         BufferedImage watermarkedImage = new BufferedImage(
-                originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = watermarkedImage.createGraphics();
 
         graphics.drawImage(originalImage, 0, 0, (ImageObserver)null);
         Font javafxFont = Font.font("Arial", FontWeight.BOLD, (double)newSize);
-        java.awt.Font awtFont = new java.awt.Font(javafxFont.getFamily(), 0, newSize);
+        java.awt.Font awtFont = new java.awt.Font(javafxFont.getFamily(), 0, (int) newSize);
 
         double normalizedVisibility = (visibility - 0) / (100 - 0);
         java.awt.Color awtColor = new java.awt.Color((float)newColor.getRed(), (float)newColor.getGreen(), (float)newColor.getBlue(), (float) normalizedVisibility);
         graphics.setColor(awtColor);
         graphics.setFont(awtFont);
-
+        graphics.setFont(awtFont);
 
 
          int x = (watermarkedImage.getWidth() - graphics.getFontMetrics().stringWidth(text)) / 2 + watermarkXPosition;
@@ -265,13 +324,13 @@ public class WaterMarkPaneMainController {
     }
 
     public void OnImgPreview(List<File> inputListViewItems ){
-        showNextImage();
+        //showNextImage();
         for (File inputListViewItem : inputListViewItems) {
             String  filepath = inputListViewItem.getAbsolutePath();
             Image image = new Image("file:" + filepath);
             this.inputImages.add(image);
-
-        }
+            imageWatermarkSizeMap.put(image, (int) sizeSlider.getValue());
+         }
         currentImageIndex = inputImages.size()-1;
         System.out.println("current size: "+ currentImageIndex);
         if(this.ImgPreview.getImage() == null){
@@ -409,7 +468,7 @@ public class WaterMarkPaneMainController {
 @FXML
     public void OnDefaultValue() {
         this.visibilitySlider.setValue(65);
-        this.sizeSlider.setValue(100);
+        this.sizeSlider.setValue(700);
         this.rotationSlider.setValue(0);
     }
 
